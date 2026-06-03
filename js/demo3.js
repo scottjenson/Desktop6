@@ -15,9 +15,12 @@ const filebrowser = document.getElementById('filebrowser');
 const tabsBar     = document.getElementById('viewer-tabs');
 const panelsWrap  = document.getElementById('viewer-panels');
 
-// Revealable items only — the document row is pre-revealed and excluded.
-const fbItems = Array.from(document.querySelectorAll('#fb-items .fb-item:not(.revealed)'));
-let nextReveal = 0;   // index of the next fb-item to reveal
+// Revealable steps — direct children of the tree that aren't already revealed.
+// Each step is either a single .fb-item or a whole .fb-group (folder + contents).
+const fbSteps = Array.from(document.getElementById('fb-items').children)
+  .filter(el => (el.classList.contains('fb-item') || el.classList.contains('fb-group'))
+                && !el.classList.contains('revealed'));
+let nextReveal = 0;   // index of the next step to reveal
 
 /* ── File browser slide ── */
 function showBrowser() { filebrowser.classList.add('open'); }
@@ -26,15 +29,15 @@ function hideBrowser() { filebrowser.classList.remove('open'); }
 /* ── Reveal / un-reveal items one at a time ── */
 function revealNext() {
   if (!filebrowser.classList.contains('open')) filebrowser.classList.add('open');
-  if (nextReveal >= fbItems.length) return;
-  fbItems[nextReveal].classList.add('revealed');
+  if (nextReveal >= fbSteps.length) return;
+  fbSteps[nextReveal].classList.add('revealed');
   nextReveal++;
 }
 
 function unrevealLast() {
   if (nextReveal <= 0) return;
   nextReveal--;
-  fbItems[nextReveal].classList.remove('revealed');
+  fbSteps[nextReveal].classList.remove('revealed');
 }
 
 /* ── Tabs ── */
@@ -54,10 +57,14 @@ function openItem(item) {
     tab = document.createElement('div');
     tab.className = 'viewer-tab';
     tab.dataset.panel = panelId;
-    const ico  = item.querySelector('.fb-ico').textContent;
-    const name = item.querySelector('.fb-name').textContent;
+    const icoEl = item.querySelector('.fb-ico');
+    const imgEl = item.querySelector('.fb-file-img');
+    const name  = item.querySelector('.fb-name').textContent;
+    const icoHtml = icoEl
+      ? `<span class="vt-ico">${icoEl.textContent}</span>`
+      : (imgEl ? `<img class="vt-ico-img" src="${imgEl.src}" alt="">` : '');
     tab.innerHTML =
-      `<span class="vt-ico">${ico}</span><span class="vt-label">${name}</span>` +
+      `${icoHtml}<span class="vt-label">${name}</span>` +
       `<span class="vt-close">×</span>`;
     tabsBar.appendChild(tab);
   }
@@ -82,7 +89,7 @@ tabsBar.addEventListener('click', (e) => {
 });
 
 /* File row clicks → open as tab. */
-fbItems.forEach(item => {
+document.querySelectorAll('#fb-items .fb-item').forEach(item => {
   item.addEventListener('click', () => openItem(item));
 });
 
