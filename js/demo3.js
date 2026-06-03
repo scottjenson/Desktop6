@@ -93,8 +93,78 @@ document.querySelectorAll('#fb-items .fb-item').forEach(item => {
   item.addEventListener('click', () => openItem(item));
 });
 
+/* ── Hover preview card ──
+   One shared card lives in #stage (so it scales with the desktop). On hover we
+   clone the item's viewer panel, scale it to fit, and float it left of the browser.
+   Cloning (not moving) keeps the live panel intact and means edits to the source
+   DOM show up in the preview automatically. */
+const stage = document.getElementById('stage');
+const browserEl = document.getElementById('filebrowser');
+const viewer = document.getElementById('viewer');
+
+const previewCard = document.createElement('div');
+previewCard.className = 'preview-card';
+stage.appendChild(previewCard);
+
+// Card size in stage-px (≈25% of the 740×900 viewer area)
+const PC_W = 380;
+const PC_H = 470;
+previewCard.style.setProperty('--pc-w', PC_W + 'px');
+previewCard.style.setProperty('--pc-h', PC_H + 'px');
+
+function showPreview(item) {
+  const panel = document.getElementById(item.dataset.panel);
+  if (!panel) return;
+
+  // Clone the panel and force it visible & laid out at the viewer's content size
+  const clone = panel.cloneNode(true);
+  clone.classList.add('active');           // panels are display:none unless active
+  clone.classList.add('pc-clone');
+
+  // Size the clone to the viewer's content area, then scale to fit the card
+  const contentW = viewer.offsetWidth;                       // 740
+  const contentH = viewer.offsetHeight - 64;                 // minus titlebar+tabs
+  const scale = Math.min(PC_W / contentW, PC_H / contentH);
+  clone.style.width  = contentW + 'px';
+  clone.style.height = contentH + 'px';
+  clone.style.transform = `scale(${scale})`;
+
+  previewCard.innerHTML = '';
+  previewCard.appendChild(clone);
+
+  positionPreview(item);
+  previewCard.classList.add('visible');
+}
+
+function positionPreview(item) {
+  // Work in stage-px. #filebrowser is positioned relative to #viewer; compute its
+  // left edge in stage coordinates so the card sits just to its left.
+  const browserLeftPx = parseFloat(getComputedStyle(viewer).left)        // viewer x
+                      - parseFloat(getComputedStyle(browserEl).width);   // minus browser width
+  const gap = 16;
+  const cardLeft = browserLeftPx - PC_W - gap;
+
+  // Align the card's top with the hovered row's top (in stage-px) so it reads as
+  // visually attached to that specific item.
+  const stageScale = parseFloat(getComputedStyle(stage).getPropertyValue('--stage-scale')) || 1;
+  const stageRect = stage.getBoundingClientRect();
+  const itemRect  = item.getBoundingClientRect();
+  const cardTop = (itemRect.top - stageRect.top) / stageScale;
+
+  previewCard.style.left = cardLeft + 'px';
+  previewCard.style.top  = cardTop + 'px';
+}
+
+function hidePreview() {
+  previewCard.classList.remove('visible');
+}
+
+document.querySelectorAll('#fb-items .fb-item').forEach(item => {
+  item.addEventListener('mouseenter', () => showPreview(item));
+  item.addEventListener('mouseleave', hidePreview);
+});
+
 /* ── Window drag (titlebar → move #viewer) ── */
-const viewer   = document.getElementById('viewer');
 const titlebar = viewer.querySelector('.win-titlebar');
 
 titlebar.addEventListener('mousedown', (e) => {

@@ -10,10 +10,13 @@
    is invisible. (Demo 2 gets a future "align" key that snaps its live window here.)
    If you change these, change the matching note in CLAUDE.md. */
 :root {
-  --wp-x: 1600px;
-  --wp-y: 280px;
-  --wp-w: 740px;
-  --wp-h: 900px;
+  /* NOTE: Demo-3 deliberately breaks Demo-2 parity here — the window is enlarged
+     for readability since this demo is about content, not window dragging.
+     (Original parity rect was 1600,280,740,900.) */
+  --wp-x: 1480px;
+  --wp-y: 220px;
+  --wp-w: 880px;
+  --wp-h: 1040px;
 
   /* File browser pane (Obsidian-style, attached to the viewer's LEFT edge) */
   --fb-w: 300px;        /* pane width when open */
@@ -97,7 +100,7 @@
   font-size: 19px; font-weight: 600; color: #444;
   cursor: pointer;
 }
-.fb-folder:hover { background: rgba(0,0,0,0.04); }
+.fb-folder:hover { background: rgba(10,132,255,0.10); }
 .fb-folder .fb-doc-img {
   width: 22px; height: 22px; object-fit: contain;
   filter: drop-shadow(0 1px 2px rgba(0,0,0,0.35));
@@ -141,32 +144,31 @@
 .fb-item .fb-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
 .fb-item .fb-kind { font-size: 12px; color: #aaa; text-transform: uppercase; letter-spacing: 0.05em; }
 
-/* ── HOVER CARD ──
-   Pops out to the LEFT of a file row (escaping the browser, into open desktop space).
-   In Demo 2 this was impossible (mesh clipped to its canvas); in plain DOM it's free.
-   Positioned by js/filebrowser.js relative to the hovered row. */
-.hover-card {
-  position: absolute;
-  left: calc(-1 * (var(--fb-w) - 18px));  /* float out into the desktop to the left */
-  width: 230px;
+/* ── HOVER PREVIEW CARD ──
+   A shared card (one in the DOM, built in js/demo3.js). On hover it gets a
+   cloneNode of the hovered item's viewer panel, CSS-scaled down, and floats out
+   to the LEFT of the file browser. Positioned in viewport px by JS. */
+.preview-card {
+  position: fixed;            /* JS sets top/left in viewport coords */
+  width: var(--pc-w, 370px);
+  height: var(--pc-h, 450px);
   background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 14px 44px rgba(0,0,0,0.28);
-  padding: 12px 14px;
+  border-radius: 12px;
+  box-shadow: 0 22px 70px rgba(0,0,0,0.40);
+  overflow: hidden;
   pointer-events: none;
-  opacity: 0; transform: translateX(8px) scale(0.98);
+  opacity: 0;
+  transform: translateX(8px) scale(0.98);
   transition: opacity 0.16s ease, transform 0.16s ease;
-  z-index: 30;
+  z-index: 100;
 }
-.fb-item:hover .hover-card { opacity: 1; transform: translateX(0) scale(1); }
-.hover-card .hc-title { font-size: 13px; font-weight: 700; color: var(--win-heading); margin-bottom: 4px; }
-.hover-card .hc-meta { font-size: 10px; color: #999; margin-bottom: 8px; }
-.hover-card .hc-thumb {
-  height: 88px; border-radius: 6px; margin-bottom: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 34px; background: #f0f0f3; color: #999;
+.preview-card.visible { opacity: 1; transform: translateX(0) scale(1); }
+
+/* The scaled clone wrapper — JS sets its size + transform: scale() */
+.preview-card .pc-clone {
+  position: absolute; top: 0; left: 0; right: auto; bottom: auto;
+  transform-origin: top left;
 }
-.hover-card .hc-desc { font-size: 11px; line-height: 1.5; color: #666; }
 
 /* ── TAB BAR ── (inside the viewer titlebar area, below the traffic lights) */
 .viewer-tabs {
@@ -242,3 +244,13 @@
 .sheet-panel tbody tr:hover td { background: #f5f9ff; }
 .sheet-panel .num { text-align: right; font-variant-numeric: tabular-nums; }
 .sheet-panel .total td { font-weight: 700; background: #eef4ff; }
+
+/* ── DOCUMENT READABILITY (Demo-3 only) ──
+   Bump the word-processor text up ~15% over the lifted Demo-2 sizes. Overrides
+   here (not in wordprocessor.css) keep the lifted file pristine. */
+#panel-doc .wp-h1   { font-size: 26px; }
+#panel-doc .wp-h2   { font-size: 17px; }
+#panel-doc .wp-h3   { font-size: 15px; }
+#panel-doc .wp-p    { font-size: 14.5px; }
+#panel-doc .wp-ul   { font-size: 14.5px; }
+#panel-doc .wp-meta { font-size: 12.5px; }
