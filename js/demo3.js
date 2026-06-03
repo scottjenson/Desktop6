@@ -99,6 +99,35 @@ fbItems.forEach(item => {
   item.addEventListener('click', () => openItem(item));
 });
 
+/* ── Window drag (titlebar → move #viewer) ── */
+const viewer   = document.getElementById('viewer');
+const titlebar = viewer.querySelector('.win-titlebar');
+
+titlebar.addEventListener('mousedown', (e) => {
+  if (e.target.closest('.traffic-lights')) return;  // don't steal traffic-light clicks
+
+  const scale  = parseFloat(getComputedStyle(document.getElementById('stage'))
+                   .getPropertyValue('--stage-scale')) || 1;
+
+  // current position in desktop-px (CSS left/top, falling back to the parity-rect vars)
+  const startLeft = parseFloat(viewer.style.left) || parseFloat(getComputedStyle(viewer).left);
+  const startTop  = parseFloat(viewer.style.top)  || parseFloat(getComputedStyle(viewer).top);
+  const startX = e.clientX;
+  const startY = e.clientY;
+
+  function onMove(ev) {
+    viewer.style.left = (startLeft + (ev.clientX - startX) / scale) + 'px';
+    viewer.style.top  = (startTop  + (ev.clientY - startY) / scale) + 'px';
+  }
+  function onUp() {
+    window.removeEventListener('mousemove', onMove);
+    window.removeEventListener('mouseup',   onUp);
+  }
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup',   onUp);
+  e.preventDefault();
+});
+
 /* ── Keyboard choreography ── */
 window.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowRight') { e.preventDefault(); toggleBrowser(); }

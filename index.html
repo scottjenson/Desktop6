@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Demo 3 — Clipboard ↔ Filesystem Bridge</title>
+<title>Demo 3</title>
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/desktop.css">
 <link rel="stylesheet" href="css/wordprocessor.css">
@@ -172,8 +172,15 @@
                 <li>Hover any file → an inline card previews it in place.</li>
                 <li>Click a file → it opens as a tab beside the document, never replacing it.</li>
               </ul>
+              <h2 class="wp-h2">Design Principles</h2>
+              <p class="wp-p">Three principles guide the interaction model. First, continuity: content should never disappear when you stop looking at it. Minimising a window today is a one-way door — the work is gone from view and retrieving it requires a deliberate act. The panel model keeps everything reachable without modal disruption.</p>
+              <p class="wp-p">Second, proximity: related artefacts should live physically close to the document that generated them. A moodboard referenced in paragraph three should not require a trip to the filesystem — it should be one hover away, anchored to the text that cares about it.</p>
+              <p class="wp-p">Third, legibility: the panel should communicate the type and provenance of each item at a glance. A dragged image, a pasted snippet, and a linked spreadsheet are visually distinct even at small size, so the cognitive cost of recognising them is near zero.</p>
+              <h2 class="wp-h2">Open Questions</h2>
+              <p class="wp-p">Several design decisions remain unresolved and will require user testing to settle. Should the panel persist across documents, or be scoped to a single file? Should items expire after a configurable period, or remain indefinitely? And critically — should the panel be write-only (clipboard-to-file) or bidirectional (edits in the panel reflect back into the document)?</p>
+              <p class="wp-p">The bidirectional case is the most compelling and the most dangerous. Live sync between a panel item and its in-document reference could eliminate an entire class of copy-paste errors. It also introduces the risk of silent, hard-to-undo mutations. A versioned history view — visible in the panel itself — may be the right safety net.</p>
               <h2 class="wp-h2">Next Steps</h2>
-              <p class="wp-p">User testing across representative authoring tasks, then extending the panel to accept drops from other applications on the desktop.</p>
+              <p class="wp-p">User testing across representative authoring tasks, then extending the panel to accept drops from other applications on the desktop. A follow-on prototype will explore the bidirectional sync case with explicit version markers so participants can reason about change history without leaving the document.</p>
             </div>
           </div>
         </div>
