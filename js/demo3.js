@@ -12,43 +12,30 @@
    removes the tab and falls back to the document. The document tab has no ×. */
 
 const filebrowser = document.getElementById('filebrowser');
-const fbFolder    = document.getElementById('fb-folder');
-const fbItemsWrap = document.getElementById('fb-items');
-const fbItems     = Array.from(document.querySelectorAll('#fb-items .fb-item'));
 const tabsBar     = document.getElementById('viewer-tabs');
 const panelsWrap  = document.getElementById('viewer-panels');
 
-let nextReveal = 0;   // index of the next fb-item to reveal on [Space]
+// Revealable items only — the document row is pre-revealed and excluded.
+const fbItems = Array.from(document.querySelectorAll('#fb-items .fb-item:not(.revealed)'));
+let nextReveal = 0;   // index of the next fb-item to reveal
 
 /* ── File browser slide ── */
-function toggleBrowser() {
-  filebrowser.classList.toggle('open');
-}
+function showBrowser() { filebrowser.classList.add('open'); }
+function hideBrowser() { filebrowser.classList.remove('open'); }
 
-/* ── Reveal items one at a time ── */
+/* ── Reveal / un-reveal items one at a time ── */
 function revealNext() {
   if (!filebrowser.classList.contains('open')) filebrowser.classList.add('open');
   if (nextReveal >= fbItems.length) return;
   fbItems[nextReveal].classList.add('revealed');
   nextReveal++;
-  recalcFolderHeight();
 }
 
-/* Keep the collapsible folder's max-height in step with revealed rows. */
-function recalcFolderHeight() {
-  if (fbFolder.classList.contains('collapsed')) return;
-  fbItemsWrap.style.maxHeight = fbItemsWrap.scrollHeight + 'px';
+function unrevealLast() {
+  if (nextReveal <= 0) return;
+  nextReveal--;
+  fbItems[nextReveal].classList.remove('revealed');
 }
-
-/* ── Collapsible top-level folder ── */
-fbFolder.addEventListener('click', () => {
-  fbFolder.classList.toggle('collapsed');
-  if (fbFolder.classList.contains('collapsed')) {
-    fbItemsWrap.style.maxHeight = '0px';
-  } else {
-    recalcFolderHeight();
-  }
-});
 
 /* ── Tabs ── */
 function activateTab(panelId) {
@@ -130,6 +117,8 @@ titlebar.addEventListener('mousedown', (e) => {
 
 /* ── Keyboard choreography ── */
 window.addEventListener('keydown', (e) => {
-  if (e.key === 'ArrowRight') { e.preventDefault(); toggleBrowser(); }
-  else if (e.key === ' ')     { e.preventDefault(); revealNext(); }
+  if (e.key === 'ArrowLeft')  { e.preventDefault(); showBrowser(); }
+  else if (e.key === 'ArrowRight') { e.preventDefault(); hideBrowser(); }
+  else if (e.key === 'ArrowDown')  { e.preventDefault(); revealNext(); }
+  else if (e.key === 'ArrowUp')    { e.preventDefault(); unrevealLast(); }
 });

@@ -73,51 +73,45 @@
 
     <!-- File browser — slides out to the LEFT; viewer never moves -->
     <div id="filebrowser">
-      <div class="fb-header"><span class="fb-dot"></span> PROJECT FILES</div>
-      <div class="fb-tree">
-        <div class="fb-folder" id="fb-folder"><span class="fb-twisty">▾</span> Design Proposal</div>
-        <div class="fb-items" id="fb-items">
-          <!-- data-panel links the row to a viewer panel id. Items reveal one at a time. -->
+      <div class="fb-header"><img class="fb-folder-img" src="icons/folder.png" alt=""> PROJECT FILES</div>
+      <div class="fb-tree" id="fb-items">
+        <!-- Flat list of file items (siblings). data-panel links a row to a viewer
+             panel id. Items reveal one at a time via the down arrow. Folders will be
+             added later as additional .fb-folder siblings. -->
 
-          <div class="fb-item" data-panel="panel-moodboard" data-kind="image">
-            <span class="fb-ico">🖼️</span>
-            <span class="fb-name">moodboard.png</span>
-            <span class="fb-kind">img</span>
-            <div class="hover-card">
-              <div class="hc-title">moodboard.png</div>
-              <div class="hc-meta">PNG image · 1.2 MB · 2400×1600</div>
-              <div class="hc-thumb">🖼️</div>
-              <div class="hc-desc">Reference imagery for the ultrawide spatial layout — depth, parking zones, edge recession.</div>
-            </div>
-          </div>
-
-          <div class="fb-item" data-panel="panel-notes" data-kind="markdown">
-            <span class="fb-ico">📝</span>
-            <span class="fb-name">research-notes.md</span>
-            <span class="fb-kind">md</span>
-            <div class="hover-card">
-              <div class="hc-title">research-notes.md</div>
-              <div class="hc-meta">Markdown · 4 KB · edited today</div>
-              <div class="hc-thumb">📝</div>
-              <div class="hc-desc">Field notes on window-management friction, dragged in from the clipboard.</div>
-            </div>
-          </div>
-
-          <div class="fb-item" data-panel="panel-budget" data-kind="spreadsheet">
-            <span class="fb-ico">📊</span>
-            <span class="fb-name">budget.csv</span>
-            <span class="fb-kind">csv</span>
-            <div class="hover-card">
-              <div class="hc-title">budget.csv</div>
-              <div class="hc-meta">Spreadsheet · 12 rows · 4 cols</div>
-              <div class="hc-thumb">📊</div>
-              <div class="hc-desc">Prototype cost breakdown across the three project phases.</div>
-            </div>
-          </div>
-
+        <!-- The document we're currently viewing — revealed by default -->
+        <div class="fb-item revealed" data-panel="panel-doc" data-kind="doc">
+          <img class="fb-file-img" src="icons/document.png" alt="">
+          <span class="fb-name">Design Proposal.doc</span>
         </div>
+
+        <div class="fb-item" data-panel="panel-budget" data-kind="spreadsheet">
+          <span class="fb-ico">📊</span>
+          <span class="fb-name">budget.csv</span>
+          <div class="hover-card">
+            <div class="hc-title">budget.csv</div>
+            <div class="hc-meta">Spreadsheet · 12 rows · 4 cols</div>
+            <div class="hc-thumb">📊</div>
+            <div class="hc-desc">Prototype cost breakdown across the three project phases.</div>
+          </div>
+        </div>
+
+        <div class="fb-item" data-panel="panel-notes" data-kind="markdown">
+          <span class="fb-ico">📝</span>
+          <span class="fb-name">research-notes.md</span>
+          <div class="hover-card">
+            <div class="hc-title">research-notes.md</div>
+            <div class="hc-meta">Markdown · 4 KB · edited today</div>
+            <div class="hc-thumb">📝</div>
+            <div class="hc-desc">Field notes on window-management friction, dragged in from the clipboard.</div>
+          </div>
+        </div>
+
       </div>
     </div>
+
+    <!-- Viewer content clip layer (rounds corners; sits above the file browser) -->
+    <div class="viewer-clip">
 
     <!-- Viewer titlebar (shared frame) -->
     <div class="win-titlebar">
@@ -233,6 +227,7 @@
       </div>
 
     </div>
+    </div><!-- /viewer-clip -->
   </div><!-- /viewer -->
 
   <!-- ── DOCK ── lifted markup from Demo 2 -->

@@ -24,6 +24,10 @@
    one Obsidian-like unit. The VIEWER stays pinned to --wp-x/y/w/h and NEVER moves;
    the browser slides out to the LEFT of it (negative offset), so opening the
    browser does not disturb Demo-2 parity. */
+:root {
+  --fb-inset: 40px;   /* how far the browser is inset from the viewer's top & bottom */
+}
+
 #viewer {
   position: absolute;
   left: var(--wp-x);
@@ -31,66 +35,86 @@
   width: var(--wp-w);
   height: var(--wp-h);
   z-index: 10;
+  overflow: visible;   /* let #filebrowser (positioned to the left) escape the clip */
+  border-radius: 12px; /* corner shape for the inner content (clipped by .viewer-clip) */
 }
 
-/* File browser — sits to the LEFT of the viewer, slid off-screen by default.
-   It shares the viewer's vertical extent and rounded-left frame. */
+/* Inner clip layer: restores rounded-corner clipping for the viewer's own content
+   (titlebar + tabs + panels) now that #viewer itself is overflow:visible. */
+.viewer-clip {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  z-index: 2;          /* above the file browser, so the browser slides out from behind */
+}
+
+/* File browser — a visual child tucked to the LEFT of the viewer, inset top & bottom.
+   Slides out from BEHIND the viewer (lower z-index), no fade. */
 #filebrowser {
   position: absolute;
-  top: 0;
+  top: var(--fb-inset);
+  bottom: var(--fb-inset);
   right: 100%;                 /* anchor its right edge to the viewer's left edge */
+  margin-right: -12px;         /* tuck slightly under the viewer's rounded edge */
   width: var(--fb-w);
-  height: 100%;
   background: #f4f4f6;
-  border-radius: 12px 0 0 12px;
+  border-radius: 12px;
   box-shadow: 0 22px 70px rgba(0,0,0,0.45);
   display: flex; flex-direction: column;
   overflow: hidden;
+  z-index: 1;                  /* behind .viewer-clip */
 
-  /* hidden state: slid left behind the viewer + faded */
-  transform: translateX(var(--fb-w));   /* push right so it hides under the viewer */
-  opacity: 0;
+  /* hidden state: slid right so it hides behind the viewer (no fade) */
+  transform: translateX(calc(var(--fb-w) + 12px));
   pointer-events: none;
-  transition: transform 0.42s cubic-bezier(.22,.61,.36,1), opacity 0.42s ease;
+  transition: transform 0.42s cubic-bezier(.22,.61,.36,1);
 }
 #filebrowser.open {
   transform: translateX(0);
-  opacity: 1;
   pointer-events: auto;
 }
 
 /* File browser header (window-manager feel, lighter than Obsidian) */
 .fb-header {
   padding: 10px 14px 8px;
-  font-size: 12px; font-weight: 700;
+  font-size: 14px; font-weight: 700;
   color: #555; letter-spacing: 0.04em;
   border-bottom: 0.5px solid rgba(0,0,0,0.08);
   display: flex; align-items: center; gap: 8px;
   flex-shrink: 0;
 }
-.fb-header .fb-dot { width: 8px; height: 8px; border-radius: 2px; background: var(--accent); }
+.fb-header .fb-folder-img { width: 22px; height: 22px; object-fit: contain; }
 
 /* Collapsible top-level folder */
 .fb-tree { flex: 1; overflow-y: auto; padding: 8px 0; }
 .fb-folder {
-  display: flex; align-items: center; gap: 7px;
-  padding: 5px 14px;
-  font-size: 13px; font-weight: 600; color: #444;
+  display: flex; align-items: center; gap: 9px;
+  padding: 7px 16px;
+  font-size: 15px; font-weight: 600; color: #444;
   cursor: pointer;
 }
 .fb-folder:hover { background: rgba(0,0,0,0.04); }
+.fb-folder .fb-doc-img {
+  width: 22px; height: 22px; object-fit: contain;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.35));
+}
 .fb-folder .fb-twisty { font-size: 10px; color: #999; transition: transform 0.2s ease; width: 10px; }
 .fb-folder.collapsed .fb-twisty { transform: rotate(-90deg); }
 
 .fb-items { overflow: hidden; transition: max-height 0.3s ease; }
 .fb-folder.collapsed + .fb-items { max-height: 0 !important; }
 
-/* A file row in the browser. Hidden until "revealed" (one keypress at a time). */
+/* A file row in the browser. Siblings of the folder → left-justified to match it.
+   Hidden until "revealed" (one keypress at a time). */
 .fb-item {
   position: relative;
-  display: flex; align-items: center; gap: 9px;
-  padding: 6px 14px 6px 30px;
-  font-size: 13px; color: #555;
+  display: flex; align-items: center; gap: 12px;
+  padding: 9px 16px;
+  font-size: 19px; color: #555;
   cursor: pointer;
 
   /* un-revealed: collapsed + transparent. .revealed slides it in. */
@@ -102,16 +126,20 @@
               padding 0.32s ease, transform 0.32s ease, background 0.15s ease;
 }
 .fb-item.revealed {
-  max-height: 40px;
+  max-height: 56px;
   opacity: 1;
-  padding-top: 6px; padding-bottom: 6px;
+  padding-top: 9px; padding-bottom: 9px;
   transform: translateX(0);
 }
 .fb-item:hover { background: rgba(10,132,255,0.10); }
 .fb-item.active { background: rgba(10,132,255,0.16); color: var(--win-heading); }
-.fb-item .fb-ico { font-size: 16px; width: 18px; text-align: center; }
-.fb-item .fb-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.fb-item .fb-kind { font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: 0.05em; }
+.fb-item .fb-ico { font-size: 28px; width: 30px; text-align: center; }
+.fb-item .fb-file-img {
+  width: 30px; height: 30px; object-fit: contain;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.35));
+}
+.fb-item .fb-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.fb-item .fb-kind { font-size: 12px; color: #aaa; text-transform: uppercase; letter-spacing: 0.05em; }
 
 /* ── HOVER CARD ──
    Pops out to the LEFT of a file row (escaping the browser, into open desktop space).
