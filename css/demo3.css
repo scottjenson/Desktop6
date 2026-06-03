@@ -235,9 +235,9 @@
 
 /* ── SPREADSHEET PANEL ── */
 .sheet-panel { background: #fff; overflow: auto; }
-.sheet-panel table { border-collapse: collapse; width: 100%; font-size: 12px; }
+.sheet-panel table { border-collapse: collapse; width: 100%; font-size: 16px; }
 .sheet-panel th, .sheet-panel td {
-  border: 0.5px solid #dcdce0; padding: 6px 10px; text-align: left; color: #333;
+  border: 0.5px solid #dcdce0; padding: 9px 14px; text-align: left; color: #333;
 }
 .sheet-panel thead th { background: #f3f3f6; font-weight: 600; color: #555; position: sticky; top: 0; }
 .sheet-panel .row-head { background: #f7f7f9; color: #999; text-align: center; font-weight: 600; width: 38px; }
