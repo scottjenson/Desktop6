@@ -122,25 +122,16 @@ the document. All panels are static, pre-authored markup; switching tabs just to
 ---
 
 ## 📍 Status & phased plan
-**DONE (this scaffold):**
-- Stage + letterbox scaling matching Demo 2.
-- Lifted chrome (pill menubar, dock, trash, window frame).
-- Viewer pinned to the parity rect; attached file browser that slides out.
-- Collapsible folder; 3 pre-authored items (image, markdown, spreadsheet) + the document.
-- Reveal-one-at-a-time, hover preview cards, click-to-open tabs with close/fallback.
-- Three gestures wired: `[→]` slide, `[Space]` reveal, click open.
+**DONE:**
+- Moved assets from earlier demo and test visual equivalence.
 
-**TODO when you start the fresh session:**
-1. **Generate `assets/wallpaper.png`** using the Demo 2 grid-export tool (see
-   WALLPAPER_README.txt): open `grid-export.html` in the Demo 2 project, click Download,
-   drop the PNG here. It reuses Demo 2's real shader + config, so it's pixel-faithful.
-   Until then the background falls back to flat dark navy — the demo still runs.
-2. **Verify parity by eye:** open Demo 2 and Demo 3 side by side; confirm menubar pill,
-   dock, and the viewer rect line up. Adjust only if they don't.
-3. **Polish the authored content** (doc/image/markdown/spreadsheet) so each reads as a
-   believable real file — this is where the demo lands or doesn't.
-4. **Tune the choreography** to the narration (reveal pacing, card timing, which item
-   opens first). Confirm the gesture keys feel right (`[→]` / `[Space]`).
+**TODO:**
+- Create attached file browser that slides out with a keypress: left arrow shows, right arrow hides.
+- Determine which items will reveal in the folder area. Start with "Design Proposal.doc" as the first item (What we are currently looking at in the window). The next is a spreadsheet of data (also an icon), the third is text pulled from the doc.
+- Add content to the file browser with a means of controlling when each item shows up. (suggest the up/down arrows, make sure it doesn't affect scrolling in the document)
+- Each item has a hover state that pops out a preview of each item.
+- Clicking on each item opens a new tab that is an editor for that item
+
 
 **Deferred / backlog (only if asked):**
 - The Demo-2 "align" key (lives in Demo 2, not here — see above).
