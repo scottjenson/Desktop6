@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Demo 3 — Clipboard ↔ Filesystem Bridge</title>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/desktop.css">
+<link rel="stylesheet" href="css/wordprocessor.css">
+<link rel="stylesheet" href="css/demo3.css">
+</head>
+<body>
+
+<!--
+  DEMO 3 — plain DOM, no WebGL.
+  Opens looking IDENTICAL to where Demo 2 leaves off: pill menubar, same wallpaper
+  (captured PNG), same dock, and a single word-processor window pinned to Demo 2's
+  parity rect (1600,280,740,900). See CLAUDE.md for the full model.
+
+  Choreography (all driven by js/demo3.js):
+    • [→]  slide the file browser out from the viewer's left
+    • [space] reveal the next pre-authored item in the folder
+    • click an item → open it as a new tab in the viewer (Tab 1 = the document, never lost)
+    • hover an item → a card pops out to the left into open desktop space
+-->
+
+<div id="stage">
+
+  <!-- Wallpaper (captured from Demo 2's shader; see CLAUDE.md to generate the PNG) -->
+  <div id="wallpaper"></div>
+
+  <!-- ── MENUBAR (pill state) ── lifted markup from Demo 2 -->
+  <div id="menubar">
+    <div id="menu-left">
+      <span class="apple">&#63743;</span>
+      <span class="menu-item bold">Finder</span>
+      <span class="menu-item">File</span>
+      <span class="menu-item">Edit</span>
+      <span class="menu-item">Insert</span>
+      <span class="menu-item">Format</span>
+      <span class="menu-item">View</span>
+      <span class="menu-item">Help</span>
+    </div>
+    <span class="spacer"></span>
+       <div class="menu-right">
+          <span class="menu-icon-item">
+            <svg width="25" height="12" viewBox="0 0 25 12" fill="none">
+              <rect x="0.6" y="0.6" width="21" height="10.8" rx="2.4" stroke="currentColor" stroke-width="1.2"/>
+              <rect x="22" y="3.5" width="2.5" height="5" rx="1.2" fill="currentColor"/>
+              <rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/>
+            </svg>
+            91%
+          </span>
+          <span class="menu-icon-item">
+            <svg width="16" height="13" viewBox="0 0 16 13" fill="none">
+              <circle cx="8" cy="11.5" r="1.4" fill="currentColor"/>
+              <path d="M4.8 8.8 Q8 5.8 11.2 8.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+              <path d="M2 6.2 Q8 0.8 14 6.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+              <path d="M0 3.5 Q8 -2.5 16 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span>Fri 3:24 PM</span>
+          <span class="menu-icon-item">
+            <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+              <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.4"/>
+              <line x1="9.5" y1="9.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+     </div>
+  </div>
+
+  <!-- ── THE ATTACHED UNIT: file browser (left) + viewer (right) ── -->
+  <div id="viewer" class="os-window">
+
+    <!-- File browser — slides out to the LEFT; viewer never moves -->
+    <div id="filebrowser">
+      <div class="fb-header"><span class="fb-dot"></span> PROJECT FILES</div>
+      <div class="fb-tree">
+        <div class="fb-folder" id="fb-folder"><span class="fb-twisty">▾</span> Design Proposal</div>
+        <div class="fb-items" id="fb-items">
+          <!-- data-panel links the row to a viewer panel id. Items reveal one at a time. -->
+
+          <div class="fb-item" data-panel="panel-moodboard" data-kind="image">
+            <span class="fb-ico">🖼️</span>
+            <span class="fb-name">moodboard.png</span>
+            <span class="fb-kind">img</span>
+            <div class="hover-card">
+              <div class="hc-title">moodboard.png</div>
+              <div class="hc-meta">PNG image · 1.2 MB · 2400×1600</div>
+              <div class="hc-thumb">🖼️</div>
+              <div class="hc-desc">Reference imagery for the ultrawide spatial layout — depth, parking zones, edge recession.</div>
+            </div>
+          </div>
+
+          <div class="fb-item" data-panel="panel-notes" data-kind="markdown">
+            <span class="fb-ico">📝</span>
+            <span class="fb-name">research-notes.md</span>
+            <span class="fb-kind">md</span>
+            <div class="hover-card">
+              <div class="hc-title">research-notes.md</div>
+              <div class="hc-meta">Markdown · 4 KB · edited today</div>
+              <div class="hc-thumb">📝</div>
+              <div class="hc-desc">Field notes on window-management friction, dragged in from the clipboard.</div>
+            </div>
+          </div>
+
+          <div class="fb-item" data-panel="panel-budget" data-kind="spreadsheet">
+            <span class="fb-ico">📊</span>
+            <span class="fb-name">budget.csv</span>
+            <span class="fb-kind">csv</span>
+            <div class="hover-card">
+              <div class="hc-title">budget.csv</div>
+              <div class="hc-meta">Spreadsheet · 12 rows · 4 cols</div>
+              <div class="hc-thumb">📊</div>
+              <div class="hc-desc">Prototype cost breakdown across the three project phases.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Viewer titlebar (shared frame) -->
+    <div class="win-titlebar">
+      <div class="traffic-lights">
+        <div class="tl red"></div><div class="tl yellow"></div><div class="tl green"></div>
+      </div>
+      <span class="win-title">Design Proposal</span>
+    </div>
+
+    <!-- Tab bar — Tab 1 (document) always present; clicking a file adds a tab -->
+    <div class="viewer-tabs" id="viewer-tabs">
+      <div class="viewer-tab active" data-panel="panel-doc">
+        <span class="vt-ico">📄</span><span class="vt-label">Design Proposal.doc</span>
+      </div>
+    </div>
+
+    <!-- Tab panels -->
+    <div class="viewer-panels" id="viewer-panels">
+
+      <!-- TAB 1: the document — markup lifted from Demo 2's wordprocessor.html -->
+      <div class="viewer-panel active" id="panel-doc">
+        <div class="wp-toolbar">
+          <div class="wp-toolbar-group">
+            <div class="wp-font-select">Helvetica Neue <span class="wp-dropdown-arrow">▾</span></div>
+            <div class="wp-font-size">13 <span class="wp-dropdown-arrow">▾</span></div>
+          </div>
+          <div class="wp-toolbar-sep"></div>
+          <div class="wp-toolbar-group">
+            <button class="wp-btn wp-btn-bold">B</button>
+            <button class="wp-btn wp-btn-italic">I</button>
+            <button class="wp-btn wp-btn-underline">U</button>
+          </div>
+          <div class="wp-toolbar-sep"></div>
+          <div class="wp-toolbar-group">
+            <button class="wp-btn wp-active">≡</button>
+            <button class="wp-btn">≡</button>
+            <button class="wp-btn">≡</button>
+          </div>
+        </div>
+        <div class="win-body">
+          <div class="wp-scroll">
+            <div class="wp-page">
+              <h1 class="wp-h1">Rethinking the Desktop for Ultra-Wide Displays</h1>
+              <p class="wp-meta">Scott Jenson &nbsp;·&nbsp; Draft v0.4 &nbsp;·&nbsp; May 2026</p>
+              <h2 class="wp-h2">Executive Summary</h2>
+              <p class="wp-p">Modern displays have grown dramatically wider over the past decade, yet the fundamental model of how we arrange and interact with windows has remained largely unchanged since the early 1990s. This proposal outlines a new spatial interaction paradigm designed specifically for ultra-wide monitors.</p>
+              <p class="wp-p">The core thesis is simple: on a 3440-pixel-wide display, the edges of the screen are genuinely far from the centre. Rather than fighting this geometry with ever-larger windows, we can embrace it — using the edges as a place to park work-in-progress at reduced scale, keeping the centre clear for active focus.</p>
+              <h2 class="wp-h2">Bridging Clipboard and Filesystem</h2>
+              <p class="wp-p">This phase explores a side panel attached to the editor that blurs the line between a clipboard and a folder. Content dragged out of the document — an image, a snippet, a table — becomes a real file in the project, instantly previewable without leaving the writing surface.</p>
+              <ul class="wp-ul">
+                <li>Drag a selection into the panel → it persists as a named file.</li>
+                <li>Hover any file → an inline card previews it in place.</li>
+                <li>Click a file → it opens as a tab beside the document, never replacing it.</li>
+              </ul>
+              <h2 class="wp-h2">Next Steps</h2>
+              <p class="wp-p">User testing across representative authoring tasks, then extending the panel to accept drops from other applications on the desktop.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: image -->
+      <div class="viewer-panel img-panel" id="panel-moodboard">
+        <div class="img-frame">
+          <div class="img-placeholder">
+            <span>🖼️</span>
+            <span class="img-caption">moodboard.png — 2400×1600</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: markdown -->
+      <div class="viewer-panel md-panel" id="panel-notes">
+        <div class="md-body">
+          <h1>Research Notes</h1>
+          <div class="md-meta">research-notes.md · dragged from clipboard</div>
+          <p>Users spend a disproportionate share of their time <code>managing</code> windows rather than doing the work the windows contain. Three inherited assumptions drive the friction:</p>
+          <ul>
+            <li>Windows are either open or minimised — no intermediate state.</li>
+            <li>Everything competes on one flat plane, ordered only by z-index.</li>
+            <li>Spatial organisation is entirely manual.</li>
+          </ul>
+          <h2>Observed behaviours</h2>
+          <p>In ultrawide sessions, participants naturally pushed reference material toward the screen edges and kept the centre clear — anticipating the parking model before it was explained.</p>
+          <blockquote>"I just want this over here while I look at that." — P4</blockquote>
+          <h2>Open question</h2>
+          <p>Is 50% the right parked scale, or should it adapt to content type?</p>
+        </div>
+      </div>
+
+      <!-- TAB: spreadsheet -->
+      <div class="viewer-panel sheet-panel" id="panel-budget">
+        <table>
+          <thead>
+            <tr><th class="row-head"></th><th>A</th><th>B</th><th>C</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="row-head">1</td><td>Phase</td><td>Item</td><td class="num">Cost</td></tr>
+            <tr><td class="row-head">2</td><td>Phase 1 — Baseline</td><td>3D window engine</td><td class="num">$18,000</td></tr>
+            <tr><td class="row-head">3</td><td>Phase 2 — Spatial</td><td>Snap zones + parking</td><td class="num">$12,500</td></tr>
+            <tr><td class="row-head">4</td><td>Phase 3 — Bridge</td><td>Clipboard ↔ filesystem</td><td class="num">$14,200</td></tr>
+            <tr><td class="row-head">5</td><td>Phase 3 — Bridge</td><td>User testing</td><td class="num">$6,800</td></tr>
+            <tr class="total"><td class="row-head">6</td><td></td><td>Total</td><td class="num">$51,500</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div><!-- /viewer -->
+
+  <!-- ── DOCK ── lifted markup from Demo 2 -->
+  <div id="dock">
+    <div class="dock-item"><div class="dock-icon"><img src="icons/finder.png" alt="Finder"></div></div>
+    <div class="dock-item"><div class="dock-icon"><img src="icons/obsidian.png" alt="Obsidian"></div></div>
+    <div class="dock-item"><div class="dock-icon"><img src="icons/chrome.png" alt="Browser"></div></div>
+    <div class="dock-item"><div class="dock-icon"><img src="icons/music.png" alt="Music"></div></div>
+    <div class="dock-sep"></div>
+    <div class="dock-item"><div class="dock-icon"><img src="icons/wordprocessor.png" alt="Word Processor"></div></div>
+    <div class="dock-item"><div class="dock-icon"><img src="icons/mail.png" alt="Mail"></div></div>
+    <div class="dock-item"><div class="dock-icon"><img src="icons/terminal.png" alt="Terminal"></div></div>
+    <div class="dock-item"><div class="dock-icon"><img src="icons/settings.png" alt="Settings"></div></div>
+  </div>
+
+  <!-- ── TRASH ── lifted markup from Demo 2 -->
+  <div id="trash">
+    <svg viewBox="0 0 46 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="5" y="14" width="36" height="34" rx="4" fill="url(#tg)" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
+      <line x1="16" y1="20" x2="16" y2="42" stroke="rgba(255,255,255,0.28)" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="23" y1="20" x2="23" y2="42" stroke="rgba(255,255,255,0.28)" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="30" y1="20" x2="30" y2="42" stroke="rgba(255,255,255,0.28)" stroke-width="1.5" stroke-linecap="round"/>
+      <rect x="3" y="9" width="40" height="6" rx="3" fill="url(#lg)" stroke="rgba(255,255,255,0.18)" stroke-width="0.5"/>
+      <rect x="17" y="5" width="12" height="5" rx="2.5" fill="url(#lg)" stroke="rgba(255,255,255,0.12)" stroke-width="0.5"/>
+      <defs>
+        <linearGradient id="tg" x1="5" y1="14" x2="41" y2="48" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#7080a8"/><stop offset="100%" stop-color="#404e70"/>
+        </linearGradient>
+        <linearGradient id="lg" x1="3" y1="9" x2="43" y2="15" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#8898c0"/><stop offset="100%" stop-color="#505e88"/>
+        </linearGradient>
+      </defs>
+    </svg>
+    <span class="label">Trash</span>
+  </div>
+
+</div><!-- /stage -->
+
+<script src="js/stage.js"></script>
+<script src="js/demo3.js"></script>
+</body>
+</html>

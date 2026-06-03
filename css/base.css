@@ -1,0 +1,49 @@
+/* Reset, root variables, page shell, desktop letterbox scaling.
+   Lifted from Demo 2's base.css — the 3D #gl / #sources rules are removed
+   (Demo 3 is plain DOM, no WebGL canvas), but the reset, :root vars, and the
+   letterbox model are IDENTICAL so the two demos read the same across a tab switch. */
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --menubar-h: 39px;
+  --titlebar-h: 30px;
+  --accent: #0a84ff;
+
+  /* Internal desktop coordinate space (must match Demo 2's config.js). */
+  --desktop-w: 3440;
+  --desktop-h: 1440;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  background: #000;            /* black → letterbox bars top/bottom, same as Demo 2 */
+  overflow: hidden;
+  font-family: -apple-system, 'Helvetica Neue', sans-serif;
+}
+
+/* ── DESKTOP STAGE ──
+   In Demo 2 the desktop is a 3440×1440 WebGL canvas, CSS-scaled to fit the viewport
+   and centered (letterboxed). Demo 3 reproduces that EXACTLY with a fixed-size stage
+   that we scale with transform. Everything inside #stage is authored in desktop-px
+   (the 3440×1440 space), so positions can be copied 1:1 from Demo 2's data-x/data-y.
+   js/stage.js computes the scale factor on load + resize. */
+#stage {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: calc(var(--desktop-w) * 1px);
+  height: calc(var(--desktop-h) * 1px);
+  transform: translate(-50%, -50%) scale(var(--stage-scale, 1));
+  transform-origin: center center;
+  overflow: hidden;
+}
+
+/* Wallpaper layer — fills the stage behind everything. The warped-grid background
+   is a Three.js shader in Demo 2 (NOT a CSS asset), so it must be captured as a PNG
+   from the running Demo 2 and dropped in at assets/wallpaper.png. See CLAUDE.md. */
+#wallpaper {
+  position: absolute;
+  inset: 0;
+  background: #0a0e1a url('../assets/wallpaper.png') center / cover no-repeat;
+  z-index: 0;
+}

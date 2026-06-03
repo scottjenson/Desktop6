@@ -1,0 +1,215 @@
+/* Demo 3-specific layout: the parity-pinned viewer window, the attached
+   Obsidian-style file browser, the tab bar, hover cards, and the panel types.
+   Everything here is NEW (not in Demo 2). All sizes are in desktop-px because
+   #stage is authored in the 3440×1440 space and scaled as a whole. */
+
+/* ── PARITY RECT — the single source of truth ──
+   These four numbers come from Demo 2's index.html word-processor source canvas:
+     data-x="1600" data-y="280" width="740" height="900"
+   The Demo 3 viewer MUST open at this exact rect so the Demo 2 → Demo 3 tab switch
+   is invisible. (Demo 2 gets a future "align" key that snaps its live window here.)
+   If you change these, change the matching note in CLAUDE.md. */
+:root {
+  --wp-x: 1600px;
+  --wp-y: 280px;
+  --wp-w: 740px;
+  --wp-h: 900px;
+
+  /* File browser pane (Obsidian-style, attached to the viewer's LEFT edge) */
+  --fb-w: 300px;        /* pane width when open */
+}
+
+/* ── ATTACHED UNIT (file browser + viewer share one frame) ──
+   Positioned at the parity rect. The browser tucks against the viewer's left as
+   one Obsidian-like unit. The VIEWER stays pinned to --wp-x/y/w/h and NEVER moves;
+   the browser slides out to the LEFT of it (negative offset), so opening the
+   browser does not disturb Demo-2 parity. */
+#viewer {
+  position: absolute;
+  left: var(--wp-x);
+  top: var(--wp-y);
+  width: var(--wp-w);
+  height: var(--wp-h);
+  z-index: 10;
+}
+
+/* File browser — sits to the LEFT of the viewer, slid off-screen by default.
+   It shares the viewer's vertical extent and rounded-left frame. */
+#filebrowser {
+  position: absolute;
+  top: 0;
+  right: 100%;                 /* anchor its right edge to the viewer's left edge */
+  width: var(--fb-w);
+  height: 100%;
+  background: #f4f4f6;
+  border-radius: 12px 0 0 12px;
+  box-shadow: 0 22px 70px rgba(0,0,0,0.45);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+
+  /* hidden state: slid left behind the viewer + faded */
+  transform: translateX(var(--fb-w));   /* push right so it hides under the viewer */
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.42s cubic-bezier(.22,.61,.36,1), opacity 0.42s ease;
+}
+#filebrowser.open {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* File browser header (window-manager feel, lighter than Obsidian) */
+.fb-header {
+  padding: 10px 14px 8px;
+  font-size: 12px; font-weight: 700;
+  color: #555; letter-spacing: 0.04em;
+  border-bottom: 0.5px solid rgba(0,0,0,0.08);
+  display: flex; align-items: center; gap: 8px;
+  flex-shrink: 0;
+}
+.fb-header .fb-dot { width: 8px; height: 8px; border-radius: 2px; background: var(--accent); }
+
+/* Collapsible top-level folder */
+.fb-tree { flex: 1; overflow-y: auto; padding: 8px 0; }
+.fb-folder {
+  display: flex; align-items: center; gap: 7px;
+  padding: 5px 14px;
+  font-size: 13px; font-weight: 600; color: #444;
+  cursor: pointer;
+}
+.fb-folder:hover { background: rgba(0,0,0,0.04); }
+.fb-folder .fb-twisty { font-size: 10px; color: #999; transition: transform 0.2s ease; width: 10px; }
+.fb-folder.collapsed .fb-twisty { transform: rotate(-90deg); }
+
+.fb-items { overflow: hidden; transition: max-height 0.3s ease; }
+.fb-folder.collapsed + .fb-items { max-height: 0 !important; }
+
+/* A file row in the browser. Hidden until "revealed" (one keypress at a time). */
+.fb-item {
+  position: relative;
+  display: flex; align-items: center; gap: 9px;
+  padding: 6px 14px 6px 30px;
+  font-size: 13px; color: #555;
+  cursor: pointer;
+
+  /* un-revealed: collapsed + transparent. .revealed slides it in. */
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0; padding-bottom: 0;
+  transform: translateX(-8px);
+  transition: max-height 0.32s ease, opacity 0.32s ease,
+              padding 0.32s ease, transform 0.32s ease, background 0.15s ease;
+}
+.fb-item.revealed {
+  max-height: 40px;
+  opacity: 1;
+  padding-top: 6px; padding-bottom: 6px;
+  transform: translateX(0);
+}
+.fb-item:hover { background: rgba(10,132,255,0.10); }
+.fb-item.active { background: rgba(10,132,255,0.16); color: var(--win-heading); }
+.fb-item .fb-ico { font-size: 16px; width: 18px; text-align: center; }
+.fb-item .fb-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fb-item .fb-kind { font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* ── HOVER CARD ──
+   Pops out to the LEFT of a file row (escaping the browser, into open desktop space).
+   In Demo 2 this was impossible (mesh clipped to its canvas); in plain DOM it's free.
+   Positioned by js/filebrowser.js relative to the hovered row. */
+.hover-card {
+  position: absolute;
+  left: calc(-1 * (var(--fb-w) - 18px));  /* float out into the desktop to the left */
+  width: 230px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 14px 44px rgba(0,0,0,0.28);
+  padding: 12px 14px;
+  pointer-events: none;
+  opacity: 0; transform: translateX(8px) scale(0.98);
+  transition: opacity 0.16s ease, transform 0.16s ease;
+  z-index: 30;
+}
+.fb-item:hover .hover-card { opacity: 1; transform: translateX(0) scale(1); }
+.hover-card .hc-title { font-size: 13px; font-weight: 700; color: var(--win-heading); margin-bottom: 4px; }
+.hover-card .hc-meta { font-size: 10px; color: #999; margin-bottom: 8px; }
+.hover-card .hc-thumb {
+  height: 88px; border-radius: 6px; margin-bottom: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 34px; background: #f0f0f3; color: #999;
+}
+.hover-card .hc-desc { font-size: 11px; line-height: 1.5; color: #666; }
+
+/* ── TAB BAR ── (inside the viewer titlebar area, below the traffic lights) */
+.viewer-tabs {
+  display: flex; align-items: stretch;
+  background: #ebebee;
+  border-bottom: 0.5px solid rgba(0,0,0,0.12);
+  padding: 0 6px;
+  flex-shrink: 0;
+  height: 34px;
+  gap: 2px;
+}
+.viewer-tab {
+  display: flex; align-items: center; gap: 7px;
+  padding: 0 14px;
+  align-self: flex-end;
+  height: 28px;
+  border-radius: 7px 7px 0 0;
+  font-size: 12px; color: #666;
+  background: #dcdcdf;
+  cursor: pointer;
+  max-width: 200px;
+
+  /* new tabs animate in */
+  animation: tab-in 0.26s cubic-bezier(.22,.61,.36,1);
+}
+@keyframes tab-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+.viewer-tab.active { background: #fff; color: var(--win-heading); font-weight: 500; }
+.viewer-tab .vt-ico { font-size: 12px; }
+.viewer-tab .vt-close { margin-left: 2px; font-size: 12px; color: #aaa; }
+.viewer-tab .vt-close:hover { color: #666; }
+
+/* ── TAB PANELS ── only the active one shows */
+.viewer-panels { flex: 1; overflow: hidden; position: relative; }
+.viewer-panel { position: absolute; inset: 0; display: none; flex-direction: column; overflow: hidden; }
+.viewer-panel.active { display: flex; }
+
+/* ── IMAGE PANEL ── */
+.img-panel { background: #1c1c1f; align-items: center; justify-content: center; overflow: auto; }
+.img-panel .img-frame {
+  max-width: 86%; max-height: 86%;
+  border-radius: 8px; box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+  background: #fff; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.img-panel .img-placeholder {
+  width: 520px; height: 360px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px; font-size: 64px;
+  background: linear-gradient(135deg, #3a6ea5 0%, #1f3a5f 100%); color: #fff;
+}
+.img-panel .img-caption { font-size: 13px; opacity: 0.85; }
+
+/* ── MARKDOWN PANEL ── (rendered, lighter than Obsidian's raw view) */
+.md-panel { background: #fbfbfd; overflow-y: auto; padding: 40px 56px; }
+.md-panel .md-body { max-width: 620px; margin: 0 auto; color: #2a2a2a; }
+.md-panel h1 { font-size: 24px; font-weight: 800; margin-bottom: 6px; }
+.md-panel .md-meta { font-size: 11px; color: #999; margin-bottom: 22px; }
+.md-panel h2 { font-size: 16px; font-weight: 700; margin: 22px 0 8px; }
+.md-panel p { font-size: 13px; line-height: 1.75; margin-bottom: 12px; }
+.md-panel ul { margin: 8px 0 14px 22px; font-size: 13px; line-height: 1.75; }
+.md-panel code { background: #eef; border-radius: 3px; padding: 1px 5px; font-size: 12px; color: #5a4; }
+.md-panel blockquote { border-left: 3px solid var(--accent); padding-left: 14px; color: #666; margin: 12px 0; }
+
+/* ── SPREADSHEET PANEL ── */
+.sheet-panel { background: #fff; overflow: auto; }
+.sheet-panel table { border-collapse: collapse; width: 100%; font-size: 12px; }
+.sheet-panel th, .sheet-panel td {
+  border: 0.5px solid #dcdce0; padding: 6px 10px; text-align: left; color: #333;
+}
+.sheet-panel thead th { background: #f3f3f6; font-weight: 600; color: #555; position: sticky; top: 0; }
+.sheet-panel .row-head { background: #f7f7f9; color: #999; text-align: center; font-weight: 600; width: 38px; }
+.sheet-panel tbody tr:hover td { background: #f5f9ff; }
+.sheet-panel .num { text-align: right; font-variant-numeric: tabular-nums; }
+.sheet-panel .total td { font-weight: 700; background: #eef4ff; }

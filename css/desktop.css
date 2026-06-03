@@ -1,0 +1,105 @@
+/* Desktop chrome — menubar pill, dock, trash, shared window frame.
+   LIFTED from Demo 2's css/desktop.css. Keep this in visual lock-step with Demo 2:
+   the menubar, dock, and window frame must render pixel-identical so the tab switch
+   from Demo 2 → Demo 3 is invisible. The 3D-only rules (#desktop-chrome host,
+   #snap-zone-overlay) are dropped; the menubar starts in its .centered "pill" state
+   because Demo 3 opens where Demo 2 leaves off (menubar already collapsed). */
+
+:root { --menu-shift: 860px; }
+
+/* ── MENUBAR (pill form) ──
+   Demo 2 toggles between full-width and a centered black pill via .centered.
+   Demo 3 starts in the pill state, so #menubar carries .centered from the start. */
+#menubar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: var(--menubar-h);
+  display: flex; align-items: center;
+  padding: 0 14px;
+  gap: 18px;
+  font-size: 16px;
+  overflow: hidden;
+  z-index: 100;
+
+  /* pill state (matches Demo 2 #menubar.centered) */
+  clip-path: inset(0 860px 0 860px round 19px);
+  background: rgba(0, 0, 0, 0.92);
+  color: #fff;
+  border-bottom-color: transparent;
+  transition: clip-path 0.4s ease, background 0.4s ease, color 0.4s ease;
+}
+#menu-left {
+  display: flex; align-items: center; gap: 18px;
+  transform: translateX(var(--menu-shift, 0px));
+}
+#menubar .apple { font-size: 20px; margin-right: 4px; }
+#menubar .menu-item { font-weight: 500; }
+#menubar .menu-item.bold { font-weight: 700; }
+#menubar .spacer { flex: 1; }
+#menubar .menu-right {
+  display: flex; align-items: center; gap: 14px; font-size: 16px;
+  transform: translateX(calc(-1 * var(--menu-shift, 0px)));
+}
+#menubar .menu-icon-item { display: flex; align-items: center; gap: 5px; }
+
+/* ── DOCK ── (lifted verbatim) */
+#dock {
+  position: absolute;
+  bottom: 15px; left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255,255,255,0.2);
+  border: 0.5px solid rgba(255,255,255,0.3);
+  border-radius: 30px;
+  padding: 12px 18px;
+  display: flex; gap: 9px; align-items: flex-end;
+  z-index: 50;
+}
+.dock-item { display: flex; align-items: center; }
+.dock-icon {
+  width: 78px; height: 78px;
+  display: flex; align-items: center; justify-content: center;
+}
+.dock-icon img { width: 78px; height: 78px; object-fit: contain; }
+.dock-sep { width: 1px; height: 66px; background: rgba(255,255,255,0.3); align-self: center; margin: 0 6px; }
+
+/* ── TRASH ── (lifted verbatim) */
+#trash {
+  position: absolute;
+  bottom: 18px; right: 32px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  z-index: 50;
+}
+#trash svg { width: 44px; height: 50px; filter: drop-shadow(0 3px 8px rgba(0,0,0,0.5)); }
+#trash .label { font-size: 11px; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
+
+/* ── SHARED WINDOW FRAME ── (lifted verbatim from Demo 2)
+   In Demo 2 each .os-window fills its own source canvas at 100%/100%. In Demo 3
+   the window is an absolutely-positioned div on #stage, sized/placed in desktop-px
+   by windows.css (see --wp-x/y/w/h). The frame styling itself is unchanged. */
+.os-window {
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 22px 70px rgba(0,0,0,0.45);  /* real shadow — Demo 2 couldn't (canvas clipped) */
+}
+.win-titlebar {
+  height: var(--titlebar-h);
+  background: linear-gradient(180deg, #e0e0e4 0%, #d2d2d7 100%);
+  border-bottom: 0.5px solid rgba(0,0,0,0.15);
+  display: flex; align-items: center;
+  padding: 0 12px;
+  flex-shrink: 0;
+  position: relative;
+}
+.traffic-lights { display: flex; gap: 7px; align-items: center; }
+.tl { width: 13px; height: 13px; border-radius: 50%; border: 0.5px solid rgba(0,0,0,0.12); }
+.tl.red { background: #ff5f57; }
+.tl.yellow { background: #febc2e; }
+.tl.green { background: #28c840; }
+.win-title {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  font-size: 12px; font-weight: 500; color: #444; letter-spacing: 0.01em;
+}
+.win-body { flex: 1; overflow: hidden; display: flex; }
