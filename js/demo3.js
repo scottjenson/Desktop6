@@ -199,3 +199,148 @@ window.addEventListener('keydown', (e) => {
   else if (e.key === 'ArrowDown')  { e.preventDefault(); revealNext(); }
   else if (e.key === 'ArrowUp')    { e.preventDefault(); unrevealLast(); }
 });
+
+/* ── Drag a text selection out of the document into the file browser ──
+   Custom pointer-drag (not native HTML5 DnD, which is fragile under the scaled
+   stage). On mousedown inside an existing selection we build a full-size visual
+   copy of the selected text and float it under the cursor; dropping it on the
+   file browser creates a new snippet (the original text stays in the document). */
+const snippetsGroup = document.getElementById('fb-snippets-group');
+let snippetSeq = 0;
+
+// stage-px helpers (everything inside #stage is authored in desktop-px, scaled as a whole)
+function stageScale() {
+  return parseFloat(getComputedStyle(stage).getPropertyValue('--stage-scale')) || 1;
+}
+function clientToStage(clientX, clientY) {
+  const r = stage.getBoundingClientRect();
+  const s = stageScale();
+  return { x: (clientX - r.left) / s, y: (clientY - r.top) / s };
+}
+
+// Is a point (client coords) inside the current text selection?
+function pointInSelection(clientX, clientY) {
+  const sel = window.getSelection();
+  if (!sel || sel.isCollapsed || sel.rangeCount === 0) return false;
+  const range = sel.getRangeAt(0);
+  for (const rect of range.getClientRects()) {
+    if (clientX >= rect.left && clientX <= rect.right &&
+        clientY >= rect.top  && clientY <= rect.bottom) return true;
+  }
+  return false;
+}
+
+const docPanel = document.getElementById('panel-doc');
+
+docPanel.addEventListener('mousedown', (e) => {
+  if (!pointInSelection(e.clientX, e.clientY)) return;   // only drag an existing selection
+
+  const sel = window.getSelection();
+  const range = sel.getRangeAt(0);
+  const rects = range.getClientRects();
+  if (rects.length === 0) return;
+
+  // Bounding box of the whole selection, in stage-px
+  let minL = Infinity, minT = Infinity, maxR = -Infinity, maxB = -Infinity;
+  for (const r of rects) {
+    minL = Math.min(minL, r.left); minT = Math.min(minT, r.top);
+    maxR = Math.max(maxR, r.right); maxB = Math.max(maxB, r.bottom);
+  }
+  const s = stageScale();
+  const selW = (maxR - minL) / s;
+  const selH = (maxB - minT) / s;
+
+  // Capture the selected HTML (single source of truth for the new snippet)
+  const fragment = range.cloneContents();
+  const capture = document.createElement('div');
+  capture.appendChild(fragment.cloneNode(true));
+  const capturedHTML = capture.innerHTML;
+  const capturedText = sel.toString().trim();
+
+  // Build a full-size floating copy of the selected text
+  const chip = document.createElement('div');
+  chip.className = 'drag-snippet';
+  chip.style.width = selW + 'px';
+  chip.appendChild(fragment);
+  stage.appendChild(chip);
+
+  // Grab offset so the chip tracks the cursor naturally
+  const startStage = clientToStage(e.clientX, e.clientY);
+  const selTopLeft = clientToStage(minL, minT);
+  const grabDX = startStage.x - selTopLeft.x;
+  const grabDY = startStage.y - selTopLeft.y;
+
+  function place(clientX, clientY) {
+    const p = clientToStage(clientX, clientY);
+    chip.style.left = (p.x - grabDX) + 'px';
+    chip.style.top  = (p.y - grabDY) + 'px';
+  }
+  place(e.clientX, e.clientY);
+
+  function overBrowser(clientX, clientY) {
+    if (!filebrowser.classList.contains('open')) return false;
+    const r = filebrowser.getBoundingClientRect();
+    return clientX >= r.left && clientX <= r.right &&
+           clientY >= r.top  && clientY <= r.bottom;
+  }
+
+  function onMove(ev) {
+    place(ev.clientX, ev.clientY);
+    filebrowser.classList.toggle('drop-target', overBrowser(ev.clientX, ev.clientY));
+  }
+  function onUp(ev) {
+    window.removeEventListener('mousemove', onMove);
+    window.removeEventListener('mouseup', onUp);
+    const dropped = overBrowser(ev.clientX, ev.clientY);
+    filebrowser.classList.remove('drop-target');
+    chip.remove();
+    if (dropped && capturedText) {
+      createSnippet(capturedHTML, capturedText);
+      range.deleteContents();              // cut: remove the selected text from the doc
+      window.getSelection().removeAllRanges();
+    }
+  }
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup', onUp);
+  e.preventDefault();   // don't start a native selection-drag
+});
+
+// Create a new Snippets item + its viewer panel from captured document HTML
+function createSnippet(html, text) {
+  snippetSeq++;
+  const panelId = `panel-snippet-${snippetSeq}`;
+  // Name it from the first few words of the selection
+  const words = text.split(/\s+/).slice(0, 3).join('-').replace(/[^\w-]/g, '').toLowerCase();
+  const name = `${words || 'snippet'}.txt`;
+
+  // Panel
+  const panel = document.createElement('div');
+  panel.className = 'viewer-panel snippet-panel';
+  panel.id = panelId;
+  panel.innerHTML =
+    `<div class="snippet-body">
+       <div class="snippet-provenance">Clipped from Design Proposal.doc</div>
+       <div class="snippet-content">${html}</div>
+     </div>`;
+  panelsWrap.appendChild(panel);
+
+  // File row (revealed immediately, nested in Snippets)
+  const item = document.createElement('div');
+  item.className = 'fb-item fb-nested revealed';
+  item.dataset.panel = panelId;
+  item.dataset.kind = 'text';
+  item.innerHTML = `<span class="fb-ico">📝</span><span class="fb-name">${name}</span>`;
+  snippetsGroup.appendChild(item);
+
+  // Make sure the Snippets group is shown
+  snippetsGroup.classList.add('revealed');
+
+  // Wire interactions (click to open, hover preview)
+  item.addEventListener('click', () => openItem(item));
+  item.addEventListener('mouseenter', () => showPreview(item));
+  item.addEventListener('mouseleave', hidePreview);
+
+  // Briefly flash the new item so the user sees it land
+  item.classList.add('snippet-new');
+  setTimeout(() => item.classList.remove('snippet-new'), 800);
+}
