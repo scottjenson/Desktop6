@@ -106,37 +106,42 @@ const previewCard = document.createElement('div');
 previewCard.className = 'preview-card';
 stage.appendChild(previewCard);
 
-// Card size in stage-px (≈25% of the 740×900 viewer area)
+// Card width in stage-px (≈ the 740-wide viewer scaled down). Height is dynamic,
+// derived from the cloned content, capped at PC_H_MAX so a long document doesn't
+// produce a giant card.
 const PC_W = 380;
-const PC_H = 470;
+const PC_H_MAX = 520;
 previewCard.style.setProperty('--pc-w', PC_W + 'px');
-previewCard.style.setProperty('--pc-h', PC_H + 'px');
 
 function showPreview(item) {
   const panel = document.getElementById(item.dataset.panel);
   if (!panel) return;
 
-  // Clone the panel and force it visible & laid out at the viewer's content size
+  // Clone the panel and force it visible & laid out at the viewer's content width.
   const clone = panel.cloneNode(true);
   clone.classList.add('active');           // panels are display:none unless active
   clone.classList.add('pc-clone');
 
-  // Size the clone to the viewer's content area, then scale to fit the card
-  const contentW = viewer.offsetWidth;                       // 740
-  const contentH = viewer.offsetHeight - 64;                 // minus titlebar+tabs
-  const scale = Math.min(PC_W / contentW, PC_H / contentH);
+  const contentW = viewer.offsetWidth;                       // ~880
+  const scale = PC_W / contentW;            // scale by WIDTH so it fills the card
   clone.style.width  = contentW + 'px';
-  clone.style.height = contentH + 'px';
+  clone.style.height = 'auto';              // let it take its natural height
   clone.style.transform = `scale(${scale})`;
 
   previewCard.innerHTML = '';
   previewCard.appendChild(clone);
 
-  positionPreview(item);
+  // Measure the clone's natural (unscaled) height, then size the card to fit.
+  const naturalH = clone.scrollHeight;
+  const cardH = Math.min(naturalH * scale, PC_H_MAX);
+  previewCard.style.setProperty('--pc-h', cardH + 'px');
+  previewCard.style.height = cardH + 'px';
+
+  positionPreview(item, cardH);
   previewCard.classList.add('visible');
 }
 
-function positionPreview(item) {
+function positionPreview(item, cardH) {
   // Work in stage-px. #filebrowser is positioned relative to #viewer; compute its
   // left edge in stage coordinates so the card sits just to its left.
   const browserLeftPx = parseFloat(getComputedStyle(viewer).left)        // viewer x

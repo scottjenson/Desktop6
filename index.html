@@ -208,19 +208,55 @@
 
       <!-- TAB: spreadsheet -->
       <div class="viewer-panel sheet-panel" id="panel-budget">
-        <table>
-          <thead>
-            <tr><th class="row-head"></th><th>A</th><th>B</th><th>C</th></tr>
-          </thead>
-          <tbody>
-            <tr><td class="row-head">1</td><td>Phase</td><td>Item</td><td class="num">Cost</td></tr>
-            <tr><td class="row-head">2</td><td>Phase 1 — Baseline</td><td>3D window engine</td><td class="num">$18,000</td></tr>
-            <tr><td class="row-head">3</td><td>Phase 2 — Spatial</td><td>Snap zones + parking</td><td class="num">$12,500</td></tr>
-            <tr><td class="row-head">4</td><td>Phase 3 — Bridge</td><td>Clipboard ↔ filesystem</td><td class="num">$14,200</td></tr>
-            <tr><td class="row-head">5</td><td>Phase 3 — Bridge</td><td>User testing</td><td class="num">$6,800</td></tr>
-            <tr class="total"><td class="row-head">6</td><td></td><td>Total</td><td class="num">$51,500</td></tr>
-          </tbody>
-        </table>
+
+        <!-- Spreadsheet toolbar — sits above the grid, under the tabs -->
+        <div class="ss-toolbar">
+          <div class="ss-group">
+            <button class="ss-btn ss-btn-bold">B</button>
+            <button class="ss-btn ss-btn-italic">I</button>
+            <button class="ss-btn ss-btn-underline">U</button>
+          </div>
+          <div class="ss-sep"></div>
+          <div class="ss-group">
+            <button class="ss-btn ss-active">≡</button>
+            <button class="ss-btn">≡</button>
+            <button class="ss-btn">≡</button>
+          </div>
+          <div class="ss-sep"></div>
+          <div class="ss-group">
+            <button class="ss-btn">$</button>
+            <button class="ss-btn">%</button>
+            <button class="ss-btn">.0</button>
+          </div>
+          <div class="ss-sep"></div>
+          <div class="ss-group">
+            <button class="ss-btn ss-fx">Σ</button>
+            <div class="ss-select">Sum <span class="ss-arrow">▾</span></div>
+          </div>
+        </div>
+
+        <!-- Formula / cell-reference bar -->
+        <div class="ss-formula-bar">
+          <div class="ss-cellref">C7</div>
+          <span class="ss-fx-label">𝑓𝑥</span>
+          <div class="ss-formula">=SUM(C2:C6)</div>
+        </div>
+
+        <div class="ss-grid">
+          <table>
+            <thead>
+              <tr><th class="row-head"></th><th>A</th><th>B</th><th>C</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="row-head">1</td><td>Phase</td><td>Item</td><td class="num">Cost</td></tr>
+              <tr><td class="row-head">2</td><td>Phase 1 — Baseline</td><td>3D window engine</td><td class="num">$18,000</td></tr>
+              <tr><td class="row-head">3</td><td>Phase 2 — Spatial</td><td>Snap zones + parking</td><td class="num">$12,500</td></tr>
+              <tr><td class="row-head">4</td><td>Phase 3 — Bridge</td><td>Clipboard ↔ filesystem</td><td class="num">$14,200</td></tr>
+              <tr><td class="row-head">5</td><td>Phase 3 — Bridge</td><td>User testing</td><td class="num">$6,800</td></tr>
+              <tr class="total"><td class="row-head">6</td><td></td><td>Total</td><td class="num">$51,500</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
     </div>
