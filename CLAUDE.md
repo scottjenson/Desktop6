@@ -123,21 +123,87 @@ the document. All panels are static, pre-authored markup; switching tabs just to
 
 ## 📍 Status & phased plan
 **DONE:**
-- Moved assets from earlier demo and test visual equivalence.
+- Attached file browser sliding out from the viewer's left (keys below).
+- Flat file list: `Design Proposal.doc` (the doc, pre-revealed) + `budget.csv` +
+  a `Snippets` folder containing `research-notes.md`. Items reveal one step at a time.
+- Hover preview cards (scaled `cloneNode` of the real panel — live, not a copy).
+- Click a row → opens a tab with a × close (doc tab has none); tabs fall back to the doc.
+- Drag a text selection out of the document into the browser → creates a new Snippet (a CUT).
+- Spreadsheet panel dressed up with a toolbar + formula bar so it reads as an app.
+- Background grid is now a live WebGL shader port (no PNG) — see Learnings.
 
-**TODO:**
-- Create attached file browser that slides out with a keypress: left arrow shows, right arrow hides.
-- Determine which items will reveal in the folder area. Start with "Design Proposal.doc" as the first item (What we are currently looking at in the window). The next is a spreadsheet of data (also an icon), the third is text pulled from the doc.
-- Add content to the file browser with a means of controlling when each item shows up. (suggest the up/down arrows, make sure it doesn't affect scrolling in the document)
-- Each item has a hover state that pops out a preview of each item.
-- Clicking on each item opens a new tab that is an editor for that item
-
+**Current gesture map (js/demo3.js):**
+- `[←]` show file browser · `[→]` hide it (NOT a toggle — left always shows, right always hides).
+- `[↓]` reveal next item/step · `[↑]` un-reveal last. A `.fb-group` (folder+contents)
+  reveals as ONE step. The doc row is pre-revealed and excluded from the sequence.
+- click row → open tab · hover row → preview card · titlebar drag → move viewer.
 
 **Deferred / backlog (only if asked):**
 - The Demo-2 "align" key (lives in Demo 2, not here — see above).
-- A lighter/heavier file-tree visual treatment (current is "window-manager, lighter
-  than Obsidian" — taste call, expect iteration).
 - Image panel currently uses a CSS placeholder; swap in a real image if desired.
+
+---
+
+## 🧠 Learnings (hard-won — don't rediscover these)
+
+**1. The file browser MUST stay a child of `#viewer`, escaping via `right:100%`.**
+It's `position:absolute; right:100%` so its right edge sits on the viewer's left edge
+and it slides via `transform`. `#viewer` is `overflow:visible` so the browser isn't
+clipped; the viewer's OWN rounded-corner clipping is restored by an inner `.viewer-clip`
+wrapper (titlebar+tabs+panels live inside it, the browser does NOT). Pulling the browser
+OUT of `#viewer` and re-anchoring to stage-px broke positioning AND "moves with the
+window" — don't. The original scaffold already had the right structure.
+
+**2. Panel-type CSS must not set `display`.** `.viewer-panel` is shown/hidden by
+`.viewer-panel.active { display:flex }`. A panel-type rule like `.snippet-panel{display:flex}`
+overrides that and makes the wrong panel show through. Style backgrounds/padding on panel
+types, never `display`.
+
+**3. Hover preview = `cloneNode(true)` of the real panel, scaled by WIDTH, dynamic height.**
+Cloning (not moving) keeps the live panel intact and means edits to the source DOM show
+in the preview for free. Scale = `cardWidth / viewer.offsetWidth`; then measure the
+clone's `scrollHeight` and set card height = `naturalH * scale` capped at a max. The
+clone needs `position:absolute; top/left:0; right/bottom:auto` to override the panel's
+`inset:0`. Card is appended to `#stage` and positioned in stage-px.
+
+**4. Drag-a-selection-to-file is CUSTOM pointer-drag, NOT native HTML5 DnD.**
+Native DnD is fragile under `#stage`'s `transform:scale`. Instead: on `mousedown` that
+lands INSIDE the current selection (`range.getClientRects()` hit-test), build a full-size
+clone of the selected text that follows the cursor in stage-px; on drop over the open
+browser, `range.deleteContents()` (cut) + create a new Snippet from the captured HTML.
+All coords go through a `clientToStage()` helper (divide by `--stage-scale`).
+
+**5. The menubar pill is a plain centered div, NOT Demo 2's clip-path.**
+Demo 2 makes the pill with `clip-path: inset(... round)` on a full-width bar + 860px
+`--menu-shift` transforms on the menu groups. We replaced that with a real
+`width:1720px` (= 3440−860−860), centered, `border-radius`, and REMOVED the menu-shift
+transforms. Parity gotcha: match Demo 2's `padding: 0 14px` exactly (24px pulled the
+items inward and they jumped on the tab switch). Menu items must match Demo 2 verbatim:
+` Finder File Edit View Go Window Help` — the scaffold had the wrong (word-processor) set.
+
+**6. The background grid is Demo 2's shader ported to a static WebGL canvas (`js/grid-bg.js`),
+replacing the 8 MB PNG** (which caused a heavy reswap on the Demo 2↔3 tab switch). It's
+plain WebGL (no Three.js), one full-screen quad, drawn ONCE. Two non-obvious ports:
+  - `fwidth()` needs `#extension GL_OES_standard_derivatives : enable` as the LITERAL
+    first line of the frag source (no leading whitespace) + `gl.getExtension(...)`.
+    Without it lines vanish (flat fill only).
+  - Colors must be sRGB→linear converted before upload (Three.js's `THREE.Color` does
+    this implicitly; raw WebGL does not) or lines render too white/desaturated.
+  - Render at 3440×1440(×2) and CSS-stretch to fill `#stage`, matching the old PNG.
+  - Resting uniforms = post-reveal state: `u_warpStrength = WARP_STRENGTH (1.33)`,
+    `u_reveal = 1.0` (Demo 3 opens after Demo 2 has revealed the grid).
+  Wrap the file in an IIFE — plain `<script>`s share one global scope and `DESKTOP_W`
+  etc. collide with `stage.js`.
+
+**7. Readability beats parity for the viewer (deliberate break).** The viewer window was
+enlarged past the parity rect (now ~880×1040 at 1480,220) and `#panel-doc .wp-*` font
+sizes bumped ~15% via demo3.css OVERRIDES (the lifted `wordprocessor.css` stays pristine).
+The window rect is NO LONGER the Demo 2 parity rect — only the chrome (menubar/dock/grid)
+must stay pixel-identical for the tab-switch illusion.
+
+**8. `body` stays black** (cinema/letterbox bars). An experiment to tint it navy to mask
+PNG-reswap flicker was abandoned once the PNG was replaced by the WebGL grid (no decode
+delay), and black bars are the right look. Don't re-tint it.
 
 ---
 
