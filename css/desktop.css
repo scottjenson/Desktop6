@@ -11,26 +11,27 @@
    Demo 2 toggles between full-width and a centered black pill via .centered.
    Demo 3 starts in the pill state, so #menubar carries .centered from the start. */
 #menubar {
+  /* Centered pill. Demo 2 made this shape with a full-width bar + clip-path; here
+     we use a real fixed-width rounded box (visible width matches: 3440−860−860=1720)
+     so a normal border traces the rounded shape cleanly. */
   position: absolute;
-  top: 0; left: 0; right: 0;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 1720px;
   height: var(--menubar-h);
   display: flex; align-items: center;
-  padding: 0 14px;
+  padding: 0 14px;          /* matches Demo 2's #menubar padding so items don't shift */
   gap: 18px;
   font-size: 16px;
   overflow: hidden;
   z-index: 100;
 
-  /* pill state (matches Demo 2 #menubar.centered) */
-  clip-path: inset(0 860px 0 860px round 19px);
-  background: rgba(0, 0, 0, 0.92);
+  border-radius: 19px;
+  background: rgb(55, 55, 55);
   color: #fff;
-  border-bottom-color: transparent;
-  transition: clip-path 0.4s ease, background 0.4s ease, color 0.4s ease;
 }
 #menu-left {
   display: flex; align-items: center; gap: 18px;
-  transform: translateX(var(--menu-shift, 0px));
 }
 #menubar .apple { font-size: 20px; margin-right: 4px; }
 #menubar .menu-item { font-weight: 500; }
@@ -38,7 +39,6 @@
 #menubar .spacer { flex: 1; }
 #menubar .menu-right {
   display: flex; align-items: center; gap: 14px; font-size: 16px;
-  transform: translateX(calc(-1 * var(--menu-shift, 0px)));
 }
 #menubar .menu-icon-item { display: flex; align-items: center; gap: 5px; }
 

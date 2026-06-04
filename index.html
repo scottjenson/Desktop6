@@ -25,8 +25,9 @@
 
 <div id="stage">
 
-  <!-- Wallpaper (captured from Demo 2's shader; see CLAUDE.md to generate the PNG) -->
-  <div id="wallpaper"></div>
+  <!-- Background grid — Demo 2's shader ported to a static WebGL canvas (js/grid-bg.js),
+       replacing the heavy 8 MB wallpaper PNG. Sized 3440×1440, CSS-scaled with #stage. -->
+  <canvas id="grid-bg"></canvas>
 
   <!-- ── MENUBAR (pill state) ── lifted markup from Demo 2 -->
   <div id="menubar">
@@ -35,9 +36,9 @@
       <span class="menu-item bold">Finder</span>
       <span class="menu-item">File</span>
       <span class="menu-item">Edit</span>
-      <span class="menu-item">Insert</span>
-      <span class="menu-item">Format</span>
       <span class="menu-item">View</span>
+      <span class="menu-item">Go</span>
+      <span class="menu-item">Window</span>
       <span class="menu-item">Help</span>
     </div>
     <span class="spacer"></span>
@@ -300,6 +301,7 @@
 </div><!-- /stage -->
 
 <script src="js/stage.js"></script>
+<script src="js/grid-bg.js"></script>
 <script src="js/demo3.js"></script>
 </body>
 </html>
