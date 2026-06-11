@@ -358,7 +358,7 @@
 
 /* ══════════════════════════════════════════════════════════════════════════
    SIDE WINDOWS — Finder (left) + Browser (right) of the viewer.
-   Lifted from a prior demo (markup in index.html, chrome in windows/windows.css).
+   Lifted from a prior demo (markup in index.html, chrome in css/windows.css).
    These start hidden so Demo 3's opening frame still matches Demo 2's single
    centered window; [w] toggles them in (js/demo3.js).
 

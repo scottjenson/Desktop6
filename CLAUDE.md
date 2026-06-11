@@ -81,16 +81,21 @@ copy 1:1 from Demo 2. Do not introduce a second coordinate system.
 
 ### File map
 ```
-index.html            #stage: wallpaper, menubar (pill), the attached unit, dock, trash.
-                      All panel content is inlined here (doc / image / markdown / sheet).
-css/base.css          reset, :root vars, #stage letterbox scaling, #wallpaper. (from Demo 2)
+index.html            #stage: grid bg, menubar (pill), the attached unit, the two side
+                      windows (Finder/Browser, inlined), dock, trash. All panel content
+                      is inlined here too (doc / image / markdown / sheet).
+css/base.css          reset, :root vars, #stage letterbox scaling. (from Demo 2)
 css/desktop.css       chrome: menubar pill, dock, trash, shared .os-window frame. (LIFTED — keep in sync)
 css/wordprocessor.css .wp-* document styles for Tab 1. (LIFTED from Demo 2's windows.css)
-css/demo3.css         NEW: parity rect, file browser, tab bar, hover cards, panel types.
+css/windows.css       per-window chrome for the side windows (Finder/Browser/etc). (LIFTED from Demo 2)
+css/demo3.css         NEW: parity rect, file browser, tab bar, hover cards, panel types,
+                      side-window placement/scale, doc-narrowing overrides.
 js/stage.js           letterbox scale on load + resize.
-js/demo3.js           the 3 gestures: slide browser / reveal item / open tab. Folder collapse.
-icons/                dock icons (copied from Demo 2).
-assets/wallpaper.png  MUST be captured from Demo 2 — see assets/WALLPAPER_README.txt.
+js/grid-bg.js         WebGL background grid (Demo 2's shader ported; replaces the old PNG).
+js/demo3.js           gestures: slide browser / reveal item / open tab; window dragging,
+                      finder select, [w] side-window toggle. Folder collapse.
+icons/                dock + file-row icons (copied from Demo 2).
+(No assets/ dir — the old 8 MB wallpaper PNG was replaced by the js/grid-bg.js shader.)
 ```
 
 ### The attached unit
@@ -131,12 +136,19 @@ the document. All panels are static, pre-authored markup; switching tabs just to
 - Drag a text selection out of the document into the browser → creates a new Snippet (a CUT).
 - Spreadsheet panel dressed up with a toolbar + formula bar so it reads as an app.
 - Background grid is now a live WebGL shader port (no PNG) — see Learnings.
+- Two side windows (Finder left, Browser right of the viewer), inlined into index.html
+  and styled by css/windows.css. Hidden on open (`.win-hidden`) so the Demo-2 tab-switch
+  frame is unchanged; GPU-scaled 1.18× to match the viewer's readability scale. All three
+  windows drag by their titlebar; Finder rows click-to-select; browser article is
+  selectable text.
 
 **Current gesture map (js/demo3.js):**
 - `[←]` show file browser · `[→]` hide it (NOT a toggle — left always shows, right always hides).
 - `[↓]` reveal next item/step · `[↑]` un-reveal last. A `.fb-group` (folder+contents)
   reveals as ONE step. The doc row is pre-revealed and excluded from the sequence.
-- click row → open tab · hover row → preview card · titlebar drag → move viewer.
+- `[w]` toggle the two side windows (Finder/Browser) in/out.
+- click row → open tab · hover row → preview card · drag any titlebar → move that window
+  (raises it to front) · click a Finder file → select it.
 
 **Deferred / backlog (only if asked):**
 - The Demo-2 "align" key (lives in Demo 2, not here — see above).
