@@ -169,40 +169,67 @@ document.querySelectorAll('#fb-items .fb-item').forEach(item => {
   item.addEventListener('mouseleave', hidePreview);
 });
 
-/* ── Window drag (titlebar → move #viewer) ── */
-const titlebar = viewer.querySelector('.win-titlebar');
+/* ── Window drag (titlebar → move the window) ──
+   Shared by #viewer and the two side windows. Reads the layout left/top (the side
+   windows' transform:scale doesn't affect getComputedStyle().left, so this is the
+   pre-transform position we set) and applies cursor deltas divided by --stage-scale.
+   Mousedown is NOT preventDefault-ed off the titlebar, so body text stays selectable. */
+let topZ = 20;   // dragged window comes to front; starts above the viewer's resting z:10
+function makeDraggable(win) {
+  const bar = win.querySelector('.win-titlebar');
+  if (!bar) return;
+  bar.addEventListener('mousedown', (e) => {
+    if (e.target.closest('.traffic-lights')) return;  // don't steal traffic-light clicks
 
-titlebar.addEventListener('mousedown', (e) => {
-  if (e.target.closest('.traffic-lights')) return;  // don't steal traffic-light clicks
+    win.style.zIndex = ++topZ;                        // raise the grabbed window
+    const scale = parseFloat(getComputedStyle(document.getElementById('stage'))
+                    .getPropertyValue('--stage-scale')) || 1;
+    const startLeft = parseFloat(win.style.left) || parseFloat(getComputedStyle(win).left);
+    const startTop  = parseFloat(win.style.top)  || parseFloat(getComputedStyle(win).top);
+    const startX = e.clientX, startY = e.clientY;
 
-  const scale  = parseFloat(getComputedStyle(document.getElementById('stage'))
-                   .getPropertyValue('--stage-scale')) || 1;
+    function onMove(ev) {
+      win.style.left = (startLeft + (ev.clientX - startX) / scale) + 'px';
+      win.style.top  = (startTop  + (ev.clientY - startY) / scale) + 'px';
+    }
+    function onUp() {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup',   onUp);
+    }
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup',   onUp);
+    e.preventDefault();
+  });
+}
 
-  // current position in desktop-px (CSS left/top, falling back to the parity-rect vars)
-  const startLeft = parseFloat(viewer.style.left) || parseFloat(getComputedStyle(viewer).left);
-  const startTop  = parseFloat(viewer.style.top)  || parseFloat(getComputedStyle(viewer).top);
-  const startX = e.clientX;
-  const startY = e.clientY;
+[viewer, document.getElementById('win-finder'), document.getElementById('win-browser')]
+  .forEach(makeDraggable);
 
-  function onMove(ev) {
-    viewer.style.left = (startLeft + (ev.clientX - startX) / scale) + 'px';
-    viewer.style.top  = (startTop  + (ev.clientY - startY) / scale) + 'px';
-  }
-  function onUp() {
-    window.removeEventListener('mousemove', onMove);
-    window.removeEventListener('mouseup',   onUp);
-  }
-  window.addEventListener('mousemove', onMove);
-  window.addEventListener('mouseup',   onUp);
-  e.preventDefault();
+/* ── Finder: click a file/folder to select it (single-selection highlight). ──
+   .finder-file.selected styling already exists in windows.css. */
+document.querySelectorAll('#win-finder .finder-file').forEach(file => {
+  file.addEventListener('click', () => {
+    document.querySelectorAll('#win-finder .finder-file.selected')
+      .forEach(f => f.classList.remove('selected'));
+    file.classList.add('selected');
+  });
 });
 
 /* ── Keyboard choreography ── */
+/* [w] toggles the two side windows (Finder left, Browser right). They start
+   hidden (.win-hidden) so the opening frame matches Demo 2; this reveals/hides
+   both at once during narration. */
+const sideWindows = document.querySelectorAll('#win-finder, #win-browser');
+function toggleSideWindows() {
+  sideWindows.forEach(w => w.classList.toggle('win-hidden'));
+}
+
 window.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowLeft')  { e.preventDefault(); showBrowser(); }
   else if (e.key === 'ArrowRight') { e.preventDefault(); hideBrowser(); }
   else if (e.key === 'ArrowDown')  { e.preventDefault(); revealNext(); }
   else if (e.key === 'ArrowUp')    { e.preventDefault(); unrevealLast(); }
+  else if (e.key === 'w' || e.key === 'W') { e.preventDefault(); toggleSideWindows(); }
 });
 
 /* ── Drag a text selection out of the document into the file browser ──

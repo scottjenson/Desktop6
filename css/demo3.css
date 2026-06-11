@@ -15,7 +15,7 @@
      (Original parity rect was 1600,280,740,900.) */
   --wp-x: 1480px;
   --wp-y: 220px;
-  --wp-w: 880px;
+  --wp-w: 720px;   /* narrowed: doc side-padding tightened (see #panel-doc overrides) */
   --wp-h: 1040px;
 
   /* File browser pane (Obsidian-style, attached to the viewer's LEFT edge) */
@@ -308,6 +308,13 @@
 #panel-doc .wp-ul   { font-size: 14.5px; }
 #panel-doc .wp-meta { font-size: 12.5px; }
 
+/* Tighten the doc's horizontal whitespace so the window can be thinner. Cuts the
+   grey gutter (.wp-scroll) and the page's left/right margin (.wp-page), both from
+   the lifted windows.css. --wp-w is narrowed to match (see :root above). Vertical
+   padding is left untouched. */
+#panel-doc .wp-scroll { padding-left: 10px; padding-right: 10px; }
+#panel-doc .wp-page   { padding-left: 32px; padding-right: 32px; }
+
 /* ── DRAG-A-SELECTION-TO-FILE ──
    A full-size visual copy of the selected text, dragged from the doc into the
    file browser to create a new snippet. Built in js/demo3.js, lives in #stage. */
@@ -347,4 +354,61 @@
 @keyframes snippet-flash {
   0%   { background: rgba(10,132,255,0.45); }
   100% { background: transparent; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   SIDE WINDOWS — Finder (left) + Browser (right) of the viewer.
+   Lifted from a prior demo (markup in index.html, chrome in windows/windows.css).
+   These start hidden so Demo 3's opening frame still matches Demo 2's single
+   centered window; [w] toggles them in (js/demo3.js).
+
+   Scaling note: Learning #7 enlarged the viewer ~1.18× for readability. These
+   windows were authored at the old (smaller) Demo-2 scale, so we GPU-scale their
+   whole frame by the same factor (transform-origin top-left) to match the
+   viewer's visual weight. Their authored w/h below are PRE-scale; the rendered
+   footprint is w×1.18 / h×1.18, which is what the placement math leaves room for.
+   ══════════════════════════════════════════════════════════════════════════ */
+:root { --side-win-scale: 1.18; }
+
+#win-finder,
+#win-browser {
+  position: absolute;
+  z-index: 8;                 /* below the viewer (z:10) so it reads as the focused window */
+  transform-origin: top left;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+/* FINDER — left third of the ultrawide desktop, clear of the file-browser slide-out.
+   Nudged right by 4 grid squares (4 × GRID_CELL_PX 86 = 344px) from the original 120px. */
+#win-finder {
+  left: 464px;
+  top: 210px;
+  width: 640px;
+  height: 860px;
+  transform: scale(var(--side-win-scale));
+}
+
+/* BROWSER — right of the viewer (viewer ends at x=2360; stage is 3440 wide). */
+#win-browser {
+  left: 2240px;
+  top: 160px;
+  width: 700px;       /* thinner — fluid page content reflows to fit */
+  height: 980px;
+  transform: scale(var(--side-win-scale));
+}
+
+/* The article body reads as selectable text (selection itself is native — no JS).
+   The browser chrome (tabs, address bar) stays a default arrow. */
+#win-browser .browser-content,
+#win-browser .browser-content * { cursor: text; user-select: text; }
+#win-browser .browser-chrome,
+#win-browser .browser-chrome * { cursor: default; }
+
+/* Hidden opening state: invisible + non-interactive, nudged down slightly so the
+   [w] reveal lifts them into place. Keeps the scale so the slide reads cleanly. */
+#win-finder.win-hidden,
+#win-browser.win-hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(var(--side-win-scale)) translateY(24px);
 }

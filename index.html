@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/desktop.css">
 <link rel="stylesheet" href="css/wordprocessor.css">
+<link rel="stylesheet" href="windows/windows.css">
 <link rel="stylesheet" href="css/demo3.css">
 </head>
 <body>
@@ -263,6 +264,217 @@
     </div>
     </div><!-- /viewer-clip -->
   </div><!-- /viewer -->
+
+  <!-- ── SIDE WINDOWS (Finder left, Browser right) ── lifted from a prior demo.
+       Start hidden (.win-hidden) so Demo 3's opening frame still matches Demo 2's
+       single-window scene; [w] reveals/hides them during narration (js/demo3.js).
+       Positioned + scaled in desktop-px by css/demo3.css (#win-finder / #win-browser). -->
+
+  <!-- FINDER — to the LEFT of the viewer -->
+  <div class="os-window win-hidden" id="win-finder">
+    <div class="win-titlebar">
+      <div class="traffic-lights">
+        <div class="tl red"></div>
+        <div class="tl yellow"></div>
+        <div class="tl green"></div>
+      </div>
+      <span class="win-title">Documents</span>
+    </div>
+    <div class="win-body">
+      <!-- Sidebar -->
+      <div class="finder-sidebar">
+        <div class="finder-sidebar-section">
+          <div class="finder-sidebar-label">Favorites</div>
+          <div class="finder-sidebar-item active"><span class="si-icon">📁</span> Documents</div>
+          <div class="finder-sidebar-item"><span class="si-icon">📥</span> Downloads</div>
+          <div class="finder-sidebar-item"><span class="si-icon">🖥</span> Desktop</div>
+          <div class="finder-sidebar-item"><span class="si-icon">🖼</span> Pictures</div>
+          <div class="finder-sidebar-item"><span class="si-icon">🎵</span> Music</div>
+          <div class="finder-sidebar-item"><span class="si-icon">🎬</span> Movies</div>
+        </div>
+        <div class="finder-sidebar-section">
+          <div class="finder-sidebar-label">iCloud</div>
+          <div class="finder-sidebar-item"><span class="si-icon">☁️</span> iCloud Drive</div>
+          <div class="finder-sidebar-item"><span class="si-icon">📄</span> Pages</div>
+          <div class="finder-sidebar-item"><span class="si-icon">📊</span> Numbers</div>
+        </div>
+        <div class="finder-sidebar-section">
+          <div class="finder-sidebar-label">Locations</div>
+          <div class="finder-sidebar-item"><span class="si-icon">💻</span> MacBook Pro</div>
+          <div class="finder-sidebar-item"><span class="si-icon">📀</span> Macintosh HD</div>
+        </div>
+        <div class="finder-sidebar-section">
+          <div class="finder-sidebar-label">Tags</div>
+          <div class="finder-sidebar-item"><span style="color:#ff5f57">●</span> Red</div>
+          <div class="finder-sidebar-item"><span style="color:#febc2e">●</span> Yellow</div>
+          <div class="finder-sidebar-item"><span style="color:#28c840">●</span> Green</div>
+          <div class="finder-sidebar-item"><span style="color:#0a84ff">●</span> Blue</div>
+        </div>
+      </div>
+      <!-- Main area -->
+      <div class="finder-right">
+        <div class="finder-toolbar">
+          <div class="finder-toolbar-btn">◀</div>
+          <div class="finder-toolbar-btn">▶</div>
+          <div class="finder-toolbar-btn" style="margin-left:8px">⊞</div>
+          <div class="finder-toolbar-btn">≡</div>
+          <div class="finder-toolbar-btn">⋮</div>
+          <div class="finder-search"><span>🔍</span><span>Search</span></div>
+        </div>
+        <div class="finder-main">
+          <div class="finder-file"><div class="file-icon">📁</div><div class="file-name">Projects</div></div>
+          <div class="finder-file selected"><div class="file-icon">📁</div><div class="file-name">Design Assets</div></div>
+          <div class="finder-file"><div class="file-icon">📁</div><div class="file-name">Archive</div></div>
+          <div class="finder-file"><div class="file-icon">📁</div><div class="file-name">Client Work</div></div>
+          <div class="finder-file"><div class="file-icon">📄</div><div class="file-name">Resume 2026.pdf</div></div>
+          <div class="finder-file"><div class="file-icon">📊</div><div class="file-name">Q1 Budget.xlsx</div></div>
+          <div class="finder-file"><div class="file-icon">🖼</div><div class="file-name">mockup_v3.png</div></div>
+          <div class="finder-file"><div class="file-icon">📝</div><div class="file-name">Notes Draft.txt</div></div>
+          <div class="finder-file"><div class="file-icon">📦</div><div class="file-name">Desktop5.zip</div></div>
+          <div class="finder-file"><div class="file-icon">🎵</div><div class="file-name">Podcast Edit.mp3</div></div>
+          <div class="finder-file"><div class="file-icon">📄</div><div class="file-name">Contract NDA.pdf</div></div>
+          <div class="finder-file"><div class="file-icon">🖼</div><div class="file-name">wallpaper.jpg</div></div>
+          <div class="finder-file"><div class="file-icon">📁</div><div class="file-name">References</div></div>
+          <div class="finder-file"><div class="file-icon">📄</div><div class="file-name">Roadmap.docx</div></div>
+        </div>
+        <div class="finder-statusbar">14 items, 48.3 GB available</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BROWSER — to the RIGHT of the viewer -->
+  <div class="os-window win-hidden" id="win-browser">
+    <div class="win-titlebar">
+      <div class="traffic-lights">
+        <div class="tl red"></div>
+        <div class="tl yellow"></div>
+        <div class="tl green"></div>
+      </div>
+      <span class="win-title">The Verge — Technology News</span>
+    </div>
+    <div class="win-body" style="flex-direction:column;">
+      <div class="browser-chrome">
+        <div class="browser-tabs">
+          <div class="browser-tab active">
+            <span class="tab-favicon">🟦</span>
+            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">The Verge</span>
+            <span class="tab-close">✕</span>
+          </div>
+          <div class="browser-tab">
+            <span class="tab-favicon">🔴</span>
+            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">YouTube</span>
+            <span class="tab-close">✕</span>
+          </div>
+          <div class="browser-tab">
+            <span class="tab-favicon">🐙</span>
+            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">GitHub</span>
+            <span class="tab-close">✕</span>
+          </div>
+          <div style="width:28px;height:28px;background:rgba(0,0,0,0.06);border-radius:6px;display:flex;align-items:center;justify-content:center;margin-left:4px;align-self:center;font-size:16px;color:#666;">+</div>
+        </div>
+        <div class="browser-addressbar">
+          <span class="browser-nav-btn">◀</span>
+          <span class="browser-nav-btn">▶</span>
+          <span class="browser-nav-btn">↻</span>
+          <div class="browser-url">
+            <span class="lock">🔒</span>
+            <span class="domain">theverge.com</span>
+            <span class="path">/2026/5/30/chrome-canvas-html-api</span>
+          </div>
+          <span style="font-size:18px;color:#888;">⋮</span>
+        </div>
+      </div>
+      <div class="browser-content">
+        <div class="page-nav">
+          <div class="page-logo">THE VERGE</div>
+          <div class="page-nav-links">
+            <span class="page-nav-link active">Tech</span>
+            <span class="page-nav-link">Science</span>
+            <span class="page-nav-link">AI</span>
+            <span class="page-nav-link">Reviews</span>
+            <span class="page-nav-link">Deals</span>
+          </div>
+        </div>
+        <div class="page-hero">
+          <div class="page-hero-eyebrow">Chrome 146 · Web APIs</div>
+          <div class="page-hero-h1">Chrome's HTML-in-Canvas API<br>is here — and it's wild</div>
+          <div class="page-hero-sub">Google's experimental <code style="background:rgba(255,255,255,0.15);padding:1px 5px;border-radius:3px;">layoutsubtree</code> attribute lets browsers render live DOM elements directly into a WebGL texture — enabling a new class of spatial UIs.</div>
+          <div class="page-hero-cta">Read More</div>
+        </div>
+        <div class="page-body">
+          <div class="page-section-label">Deep Dive</div>
+          <div class="page-h2">What does it mean for the web?</div>
+          <div class="page-p">For years, developers have hacked around the browser's compositing model to get HTML content into WebGL. Libraries like <strong>html2canvas</strong> used screenshot tricks, while CSS3DRenderer faked depth with matrix transforms. Neither approach gave you true WebGL integration.</div>
+          <div class="page-p">The new <code style="background:#f0f0f0;padding:1px 4px;border-radius:3px;font-size:12px;">layoutsubtree</code> canvas attribute changes that. Child DOM nodes are rasterized by the browser's own layout engine and exposed to the canvas paint event — meaning hover states, CSS animations, and interactive elements all work inside the texture.</div>
+          <div class="page-cards">
+            <div class="page-card">
+              <div class="page-card-img" style="background:#e8f0fe;">🎨</div>
+              <div class="page-card-body">
+                <div class="page-card-title">Native Rendering</div>
+                <div class="page-card-desc">Browser's own compositor handles layout, no JS screenshotting</div>
+              </div>
+            </div>
+            <div class="page-card">
+              <div class="page-card-img" style="background:#fce8e6;">⚡</div>
+              <div class="page-card-body">
+                <div class="page-card-title">Low Latency</div>
+                <div class="page-card-desc">Paint events fire synchronously with DOM mutations</div>
+              </div>
+            </div>
+            <div class="page-card">
+              <div class="page-card-img" style="background:#e6f4ea;">🖱</div>
+              <div class="page-card-body">
+                <div class="page-card-title">Hit Testing</div>
+                <div class="page-card-desc">UV coords map back to DOM elements via elementFromPoint</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="page-section-label" style="margin-top:28px;">Under The Hood</div>
+          <div class="page-h2">How HTMLTexture actually works</div>
+          <div class="page-p">At its core, <code style="background:#f0f0f0;padding:1px 4px;border-radius:3px;font-size:12px;">THREE.HTMLTexture</code> wraps a canvas element and hooks into its <code style="background:#f0f0f0;padding:1px 4px;border-radius:3px;font-size:12px;">onpaint</code> callback — a single-slot property that fires whenever the browser's layout engine decides the subtree needs re-rasterizing. When the callback fires, Three.js marks the texture as dirty and uploads the new bitmap to the GPU on the next render frame.</div>
+          <div class="page-p">One critical constraint: <code style="background:#f0f0f0;padding:1px 4px;border-radius:3px;font-size:12px;">onpaint</code> is a <strong>single-slot property</strong>, meaning only one listener can be registered per canvas. This is why every live window requires its own source canvas — sharing one canvas across multiple textures means only the last registered listener fires.</div>
+
+          <div class="page-h2">The multi-canvas architecture</div>
+          <div class="page-p">A production implementation would likely maintain a pool of off-screen source canvases, each rasterizing one window's DOM subtree. The visible WebGL canvas composites all of them into the final scene. Because each source canvas is independent, windows can animate, update content, and scroll without affecting one another.</div>
+          <div class="page-p">Depth ordering is handled entirely by mesh <code style="background:#f0f0f0;padding:1px 4px;border-radius:3px;font-size:12px;">position.z</code> values — no CSS z-index, no DOM reordering. Clicking a window moves it to the top of the stack by assigning it the highest z-slot; all other windows shift down by one slot to keep the range bounded.</div>
+
+          <div class="page-section-label" style="margin-top:28px;">Performance</div>
+          <div class="page-h2">What's fast, what's not</div>
+          <div class="page-p">Static windows are essentially free — the rasterized bitmap sits on the GPU and the render loop just draws it every frame with no CPU cost. Dynamic content (CSS transitions, animated text, live data) triggers repaints proportional to the canvas size. A 3440×1440 desktop chrome canvas repainting at 60fps is expensive; a 3440×39 menubar canvas is trivial.</div>
+          <div class="page-p">The practical rule: keep frequently-updating elements in small source canvases. Static chrome — wallpaper, dock, trash — can share a single large canvas that only repaints when explicitly requested (zone drag previews, for instance).</div>
+          <div class="page-cards">
+            <div class="page-card">
+              <div class="page-card-img" style="background:#fef9e7;">📐</div>
+              <div class="page-card-body">
+                <div class="page-card-title">Small canvas = fast</div>
+                <div class="page-card-desc">Menubar at 3440×39 repaints 55× cheaper than the full desktop</div>
+              </div>
+            </div>
+            <div class="page-card">
+              <div class="page-card-img" style="background:#f0f8ff;">🧱</div>
+              <div class="page-card-body">
+                <div class="page-card-title">Transform > layout</div>
+                <div class="page-card-desc">CSS transforms skip layout recalc; max-width changes do not</div>
+              </div>
+            </div>
+            <div class="page-card">
+              <div class="page-card-img" style="background:#f5f0ff;">🪟</div>
+              <div class="page-card-body">
+                <div class="page-card-title">One canvas per window</div>
+                <div class="page-card-desc">Enables independent live textures via the onpaint single-slot rule</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="page-section-label" style="margin-top:28px;">What's Next</div>
+          <div class="page-h2">The road to full interactivity</div>
+          <div class="page-p">The remaining challenge is routing input events back into the source canvas DOM. Because all pointer events land on the WebGL canvas, a raycaster must map screen coordinates to UV coordinates, then convert UV to window-local pixels, and finally dispatch synthetic events to the element under the cursor via <code style="background:#f0f0f0;padding:1px 4px;border-radius:3px;font-size:12px;">elementFromPoint</code>.</div>
+          <div class="page-p">Scrolling is already achievable by caching scrollable element references at init time and applying <code style="background:#f0f0f0;padding:1px 4px;border-radius:3px;font-size:12px;">scrollTop</code> deltas on wheel events. Hover states and clicks require the full synthetic event pipeline — expected to land in a future Chrome Canary build with improved <code style="background:#f0f0f0;padding:1px 4px;border-radius:3px;font-size:12px;">layoutsubtree</code> hit-testing support.</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- ── DOCK ── lifted markup from Demo 2 -->
   <div id="dock">
