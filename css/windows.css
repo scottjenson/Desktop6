@@ -179,8 +179,14 @@
   cursor: default;
 }
 .finder-file:hover { background: rgba(0,0,0,0.05); }
-.finder-file.selected { background: var(--accent); }
-.finder-file.selected .file-name { color: #fff; }
+/* Selection highlights ONLY the filename (dark-blue pill behind the text), not the
+   icon or the whole cell — matches macOS Finder. Same treatment on the drag chip. */
+.finder-file.selected { background: transparent; }
+.finder-file.selected .file-name,
+.drag-finder .file-name {
+  background: var(--accent); color: #fff;
+  border-radius: 4px; padding: 1px 6px;
+}
 .file-icon { font-size: 36px; line-height: 1; }
 .file-name { font-size: 11px; color: var(--win-heading); text-align: center; line-height: 1.3; word-break: break-word; }
 .finder-statusbar {

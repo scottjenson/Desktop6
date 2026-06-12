@@ -92,8 +92,9 @@ css/demo3.css         NEW: parity rect, file browser, tab bar, hover cards, pane
                       side-window placement/scale, doc-narrowing overrides.
 js/stage.js           letterbox scale on load + resize.
 js/grid-bg.js         WebGL background grid (Demo 2's shader ported; replaces the old PNG).
-js/demo3.js           gestures: slide browser / reveal item / open tab; window dragging,
-                      finder select, [w] side-window toggle. Folder collapse.
+js/demo3.js           gestures: slide browser, sidebar-row select (no tabs), window
+                      dragging, finder select, [w] side-window toggle, and the drag-in
+                      factories (finder file / text clip / web page).
 icons/                dock + file-row icons (copied from Demo 2).
 (No assets/ dir — the old 8 MB wallpaper PNG was replaced by the js/grid-bg.js shader.)
 ```
@@ -129,26 +130,38 @@ the document. All panels are static, pre-authored markup; switching tabs just to
 ## 📍 Status & phased plan
 **DONE:**
 - Attached file browser sliding out from the viewer's left (keys below).
-- Flat file list: `Design Proposal.doc` (the doc, pre-revealed) + `budget.csv` +
-  a `Snippets` folder containing `research-notes.md`. Items reveal one step at a time.
-- Hover preview cards (scaled `cloneNode` of the real panel — live, not a copy).
-- Click a row → opens a tab with a × close (doc tab has none); tabs fall back to the doc.
-- Drag a text selection out of the document into the browser → creates a new Snippet (a CUT).
+- The browser STARTS with only `Design Proposal.doc`. Everything else is dragged in;
+  folders (`Snippets`, `Web pages`) are created lazily on first drop. Files stay above
+  folders in the tree. (The old one-at-a-time `[↓]` reveal was removed.)
+- NO TAB BAR. The viewer shows exactly one panel = the highlighted sidebar row
+  (`.fb-item.active`, the light-blue pill). Clicking a row swaps the main view and
+  retitles the window; the document row is selected on open.
+- Three drop sources, one shared custom pointer-drag (NOT native DnD — see Learning #4):
+  - drag a Finder icon → a top-level file row. Spreadsheets (`.xlsx/.csv/...`) clone the
+    authored `#panel-budget` view; other files get a "no preview" placeholder.
+  - drag a text selection from the DOC → a Snippet (a CUT — text leaves the doc).
+  - drag a text selection from the BROWSER article → a Snippet (a COPY — page is
+    read-only, text stays). Either way the selection deselects on a successful drop.
+  - drag the browser's URL pill → a `Web pages` entry whose panel MIRRORS the page
+    (a clone of `.browser-content` — real local DOM, not a screenshot).
 - Spreadsheet panel dressed up with a toolbar + formula bar so it reads as an app.
-- Background grid is now a live WebGL shader port (no PNG) — see Learnings.
+- Background grid is a live WebGL shader port (no PNG) — see Learnings.
 - Two side windows (Finder left, Browser right of the viewer), inlined into index.html
   and styled by css/windows.css. Hidden on open (`.win-hidden`) so the Demo-2 tab-switch
   frame is unchanged; GPU-scaled 1.18× to match the viewer's readability scale. All three
-  windows drag by their titlebar; Finder rows click-to-select; browser article is
-  selectable text.
+  windows drag by their titlebar; Finder rows click-to-select (dark-blue pill on the
+  filename only); browser article is selectable text.
+- Hover preview cards exist but are behind a flag (`HOVER_PREVIEW_ENABLED = false` in
+  demo3.js) — felt redundant with one-click open; likely to be repurposed later as a
+  provenance/relationship channel (highlight an item's source / related items on hover).
 
 **Current gesture map (js/demo3.js):**
 - `[←]` show file browser · `[→]` hide it (NOT a toggle — left always shows, right always hides).
-- `[↓]` reveal next item/step · `[↑]` un-reveal last. A `.fb-group` (folder+contents)
-  reveals as ONE step. The doc row is pre-revealed and excluded from the sequence.
 - `[w]` toggle the two side windows (Finder/Browser) in/out.
-- click row → open tab · hover row → preview card · drag any titlebar → move that window
-  (raises it to front) · click a Finder file → select it.
+- click a sidebar row → show it in the viewer (no tabs) · drag any titlebar → move that
+  window (raises it to front) · click a Finder file → select it.
+- drag into the open browser: a Finder icon, a doc/browser text selection, or the
+  browser URL pill → creates the corresponding item (see DONE).
 
 **Deferred / backlog (only if asked):**
 - The Demo-2 "align" key (lives in Demo 2, not here — see above).

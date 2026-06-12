@@ -1,94 +1,50 @@
 /* Demo 3 choreography — the only interactive logic in the demo.
-   Three gestures, nothing more (everything else is static visual staging):
 
-     [→] / [ArrowRight]  → slide the file browser out (toggle)
-     [Space]             → reveal the next pre-authored item in the folder
+   Gestures:
+     [←] / [→]           → slide the file browser out / in
+     [w]                 → toggle the two side windows (Finder / Browser)
+     drag a Finder icon  → adds a top-level file row to the browser
+     drag a text sel.    → from the doc OR the browser → a clip nested in "Snippets"
      click a file row    → open it as a tab in the viewer (Tab 1 = doc, never lost)
-     hover a file row     → CSS-only card pops out to the left (see demo3.css)
+     hover a file row    → preview card pops out to the left (see demo3.css)
 
-   Tabs: Tab 1 (the document) is authored in the HTML and always present. Clicking a
-   file row that hasn't been opened yet appends a tab for its panel and activates it;
-   clicking a row whose tab already exists just re-activates that tab. Close (×)
-   removes the tab and falls back to the document. The document tab has no ×. */
+   The browser STARTS with only the open document. Everything else is dragged in
+   (the "Snippets" folder is created on the first text drop). Tab 1 (the document)
+   is authored in the HTML and always present. Clicking a file row appends a tab for
+   its panel and activates it; clicking a row whose tab exists re-activates it.
+   Close (×) removes the tab and falls back to the document; the doc tab has no ×. */
 
 const filebrowser = document.getElementById('filebrowser');
-const tabsBar     = document.getElementById('viewer-tabs');
 const panelsWrap  = document.getElementById('viewer-panels');
+const viewerTitle = document.getElementById('viewer-title');
 
-// Revealable steps — direct children of the tree that aren't already revealed.
-// Each step is either a single .fb-item or a whole .fb-group (folder + contents).
-const fbSteps = Array.from(document.getElementById('fb-items').children)
-  .filter(el => (el.classList.contains('fb-item') || el.classList.contains('fb-group'))
-                && !el.classList.contains('revealed'));
-let nextReveal = 0;   // index of the next step to reveal
+const fbItems = document.getElementById('fb-items');
 
 /* ── File browser slide ── */
 function showBrowser() { filebrowser.classList.add('open'); }
 function hideBrowser() { filebrowser.classList.remove('open'); }
 
-/* ── Reveal / un-reveal items one at a time ── */
-function revealNext() {
-  if (!filebrowser.classList.contains('open')) filebrowser.classList.add('open');
-  if (nextReveal >= fbSteps.length) return;
-  fbSteps[nextReveal].classList.add('revealed');
-  nextReveal++;
-}
-
-function unrevealLast() {
-  if (nextReveal <= 0) return;
-  nextReveal--;
-  fbSteps[nextReveal].classList.remove('revealed');
-}
-
-/* ── Tabs ── */
-function activateTab(panelId) {
-  document.querySelectorAll('.viewer-tab').forEach(t =>
-    t.classList.toggle('active', t.dataset.panel === panelId));
+/* ── Selection (no tabs) ──
+   The viewer shows exactly one panel = the highlighted sidebar row. Clicking a row
+   activates its panel, moves the .active highlight, and retitles the window. */
+function openItem(item) {
+  const panelId = item.dataset.panel;
   document.querySelectorAll('.viewer-panel').forEach(p =>
     p.classList.toggle('active', p.id === panelId));
   document.querySelectorAll('.fb-item').forEach(it =>
-    it.classList.toggle('active', it.dataset.panel === panelId));
+    it.classList.toggle('active', it === item));
+
+  // Title = the item's name. Strip a file extension, but not for web pages (a domain
+  // like "theverge.com" isn't name.ext).
+  const nameEl = item.querySelector('.fb-name');
+  if (nameEl) {
+    const raw = nameEl.textContent;
+    viewerTitle.textContent =
+      item.dataset.kind === 'webpage' ? raw : raw.replace(/\.[^.]+$/, '');
+  }
 }
 
-function openItem(item) {
-  const panelId = item.dataset.panel;
-  let tab = tabsBar.querySelector(`.viewer-tab[data-panel="${panelId}"]`);
-  if (!tab) {
-    tab = document.createElement('div');
-    tab.className = 'viewer-tab';
-    tab.dataset.panel = panelId;
-    const icoEl = item.querySelector('.fb-ico');
-    const imgEl = item.querySelector('.fb-file-img');
-    const name  = item.querySelector('.fb-name').textContent;
-    const icoHtml = icoEl
-      ? `<span class="vt-ico">${icoEl.textContent}</span>`
-      : (imgEl ? `<img class="vt-ico-img" src="${imgEl.src}" alt="">` : '');
-    tab.innerHTML =
-      `${icoHtml}<span class="vt-label">${name}</span>` +
-      `<span class="vt-close">×</span>`;
-    tabsBar.appendChild(tab);
-  }
-  activateTab(panelId);
-}
-
-/* Tab clicks (activate / close) — delegated so dynamically-added tabs work. */
-tabsBar.addEventListener('click', (e) => {
-  const tab = e.target.closest('.viewer-tab');
-  if (!tab) return;
-  if (e.target.classList.contains('vt-close')) {
-    const wasActive = tab.classList.contains('active');
-    const panelId = tab.dataset.panel;
-    tab.remove();
-    document.querySelectorAll('.fb-item').forEach(it => {
-      if (it.dataset.panel === panelId) it.classList.remove('active');
-    });
-    if (wasActive) activateTab('panel-doc');   // fall back to the document
-    return;
-  }
-  activateTab(tab.dataset.panel);
-});
-
-/* File row clicks → open as tab. */
+/* File row clicks → show in the viewer. */
 document.querySelectorAll('#fb-items .fb-item').forEach(item => {
   item.addEventListener('click', () => openItem(item));
 });
@@ -97,7 +53,13 @@ document.querySelectorAll('#fb-items .fb-item').forEach(item => {
    One shared card lives in #stage (so it scales with the desktop). On hover we
    clone the item's viewer panel, scale it to fit, and float it left of the browser.
    Cloning (not moving) keeps the live panel intact and means edits to the source
-   DOM show up in the preview automatically. */
+   DOM show up in the preview automatically.
+
+   TEMPORARILY DISABLED (felt redundant with one-click open). Flip the flag to bring
+   it back — all the wiring/code below is intact. Likely to be repurposed later as a
+   provenance/relationship channel rather than a content preview. */
+const HOVER_PREVIEW_ENABLED = false;
+
 const stage = document.getElementById('stage');
 const browserEl = document.getElementById('filebrowser');
 const viewer = document.getElementById('viewer');
@@ -114,6 +76,7 @@ const PC_H_MAX = 520;
 previewCard.style.setProperty('--pc-w', PC_W + 'px');
 
 function showPreview(item) {
+  if (!HOVER_PREVIEW_ENABLED) return;
   const panel = document.getElementById(item.dataset.panel);
   if (!panel) return;
 
@@ -227,18 +190,21 @@ function toggleSideWindows() {
 window.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowLeft')  { e.preventDefault(); showBrowser(); }
   else if (e.key === 'ArrowRight') { e.preventDefault(); hideBrowser(); }
-  else if (e.key === 'ArrowDown')  { e.preventDefault(); revealNext(); }
-  else if (e.key === 'ArrowUp')    { e.preventDefault(); unrevealLast(); }
   else if (e.key === 'w' || e.key === 'W') { e.preventDefault(); toggleSideWindows(); }
 });
 
-/* ── Drag a text selection out of the document into the file browser ──
+/* ══════════════════════════════════════════════════════════════════════════
+   DRAG INTO THE FILE BROWSER
    Custom pointer-drag (not native HTML5 DnD, which is fragile under the scaled
-   stage). On mousedown inside an existing selection we build a full-size visual
-   copy of the selected text and float it under the cursor; dropping it on the
-   file browser creates a new snippet (the original text stays in the document). */
-const snippetsGroup = document.getElementById('fb-snippets-group');
-let snippetSeq = 0;
+   stage). Two sources, one shared mechanic:
+     • a text selection in the doc OR the browser → a clip nested in "Snippets"
+       (the selection is CUT from its source);
+     • a Finder icon → a top-level file row (sibling of the document).
+   In both cases a full-size visual chip follows the cursor and a drop over the
+   open file browser creates the item. The Snippets folder is created lazily on
+   the first text drop (it is no longer authored into the HTML).
+   ══════════════════════════════════════════════════════════════════════════ */
+let itemSeq = 0;
 
 // stage-px helpers (everything inside #stage is authored in desktop-px, scaled as a whole)
 function stageScale() {
@@ -262,59 +228,24 @@ function pointInSelection(clientX, clientY) {
   return false;
 }
 
-const docPanel = document.getElementById('panel-doc');
+function overBrowser(clientX, clientY) {
+  if (!filebrowser.classList.contains('open')) return false;
+  const r = filebrowser.getBoundingClientRect();
+  return clientX >= r.left && clientX <= r.right &&
+         clientY >= r.top  && clientY <= r.bottom;
+}
 
-docPanel.addEventListener('mousedown', (e) => {
-  if (!pointInSelection(e.clientX, e.clientY)) return;   // only drag an existing selection
-
-  const sel = window.getSelection();
-  const range = sel.getRangeAt(0);
-  const rects = range.getClientRects();
-  if (rects.length === 0) return;
-
-  // Bounding box of the whole selection, in stage-px
-  let minL = Infinity, minT = Infinity, maxR = -Infinity, maxB = -Infinity;
-  for (const r of rects) {
-    minL = Math.min(minL, r.left); minT = Math.min(minT, r.top);
-    maxR = Math.max(maxR, r.right); maxB = Math.max(maxB, r.bottom);
-  }
-  const s = stageScale();
-  const selW = (maxR - minL) / s;
-  const selH = (maxB - minT) / s;
-
-  // Capture the selected HTML (single source of truth for the new snippet)
-  const fragment = range.cloneContents();
-  const capture = document.createElement('div');
-  capture.appendChild(fragment.cloneNode(true));
-  const capturedHTML = capture.innerHTML;
-  const capturedText = sel.toString().trim();
-
-  // Build a full-size floating copy of the selected text
-  const chip = document.createElement('div');
-  chip.className = 'drag-snippet';
-  chip.style.width = selW + 'px';
-  chip.appendChild(fragment);
+/* Shared pointer-drag loop: float `chip` under the cursor, highlight the browser
+   as a drop target, and call onDrop() if released over it. Caller owns the chip's
+   size/contents and the cleanup of the source. */
+function runChipDrag(e, chip, grabDX, grabDY, onDrop) {
   stage.appendChild(chip);
-
-  // Grab offset so the chip tracks the cursor naturally
-  const startStage = clientToStage(e.clientX, e.clientY);
-  const selTopLeft = clientToStage(minL, minT);
-  const grabDX = startStage.x - selTopLeft.x;
-  const grabDY = startStage.y - selTopLeft.y;
-
   function place(clientX, clientY) {
     const p = clientToStage(clientX, clientY);
     chip.style.left = (p.x - grabDX) + 'px';
     chip.style.top  = (p.y - grabDY) + 'px';
   }
   place(e.clientX, e.clientY);
-
-  function overBrowser(clientX, clientY) {
-    if (!filebrowser.classList.contains('open')) return false;
-    const r = filebrowser.getBoundingClientRect();
-    return clientX >= r.left && clientX <= r.right &&
-           clientY >= r.top  && clientY <= r.bottom;
-  }
 
   function onMove(ev) {
     place(ev.clientX, ev.clientY);
@@ -326,53 +257,238 @@ docPanel.addEventListener('mousedown', (e) => {
     const dropped = overBrowser(ev.clientX, ev.clientY);
     filebrowser.classList.remove('drop-target');
     chip.remove();
-    if (dropped && capturedText) {
-      createSnippet(capturedHTML, capturedText);
-      range.deleteContents();              // cut: remove the selected text from the doc
-      window.getSelection().removeAllRanges();
-    }
+    if (dropped) onDrop();
   }
   window.addEventListener('mousemove', onMove);
   window.addEventListener('mouseup', onUp);
-  e.preventDefault();   // don't start a native selection-drag
+  e.preventDefault();
+}
+
+/* ── Drag a TEXT SELECTION (doc or browser) → a clip in Snippets ──
+   `cut` = true removes the source text (the editable doc); false leaves it in place
+   (a web page is read-only, so it's a copy). */
+function startSelectionDrag(e, provenance, cut) {
+  if (!pointInSelection(e.clientX, e.clientY)) return;   // only drag an existing selection
+
+  const sel = window.getSelection();
+  const range = sel.getRangeAt(0);
+  const rects = range.getClientRects();
+  if (rects.length === 0) return;
+
+  // Bounding box of the whole selection, in stage-px
+  let minL = Infinity, minT = Infinity, maxR = -Infinity;
+  for (const r of rects) {
+    minL = Math.min(minL, r.left); minT = Math.min(minT, r.top);
+    maxR = Math.max(maxR, r.right);
+  }
+  const s = stageScale();
+  const selW = (maxR - minL) / s;
+
+  // Capture the selected HTML (single source of truth for the new snippet)
+  const fragment = range.cloneContents();
+  const capture = document.createElement('div');
+  capture.appendChild(fragment.cloneNode(true));
+  const capturedHTML = capture.innerHTML;
+  const capturedText = sel.toString().trim();
+
+  // Full-size floating copy of the selected text
+  const chip = document.createElement('div');
+  chip.className = 'drag-snippet';
+  chip.style.width = selW + 'px';
+  chip.appendChild(fragment);
+
+  const startStage = clientToStage(e.clientX, e.clientY);
+  const selTopLeft = clientToStage(minL, minT);
+
+  runChipDrag(e, chip, startStage.x - selTopLeft.x, startStage.y - selTopLeft.y, () => {
+    if (!capturedText) return;
+    createSnippet(capturedHTML, capturedText, provenance);
+    if (cut) range.deleteContents();        // doc = cut; web page = copy (leave the text)
+    window.getSelection().removeAllRanges(); // either way, clear the highlight on drop
+  });
+}
+
+const docPanel = document.getElementById('panel-doc');
+docPanel.addEventListener('mousedown', (e) =>
+  startSelectionDrag(e, 'Clipped from Design Proposal.doc', true));   // cut
+
+// Browser article text → same mechanic, but a COPY (the page can't be edited).
+const browserContent = document.querySelector('#win-browser .browser-content');
+if (browserContent) {
+  browserContent.addEventListener('mousedown', (e) =>
+    startSelectionDrag(e, 'Clipped from The Verge', false));          // copy
+}
+
+/* ── Drag a FINDER ICON → a top-level file row ── */
+document.querySelectorAll('#win-finder .finder-file').forEach(file => {
+  file.addEventListener('mousedown', (e) => {
+    const nameEl = file.querySelector('.file-name');
+    const iconEl = file.querySelector('.file-icon');
+    if (!nameEl || !iconEl) return;
+    const name = nameEl.textContent.trim();
+    const icon = iconEl.textContent.trim();
+
+    // Full-size copy of the finder cell that follows the cursor.
+    const r = file.getBoundingClientRect();
+    const s = stageScale();
+    const chip = document.createElement('div');
+    chip.className = 'drag-finder';
+    chip.style.width = (r.width / s) + 'px';
+    chip.innerHTML = `<div class="file-icon">${icon}</div><div class="file-name">${name}</div>`;
+
+    const startStage = clientToStage(e.clientX, e.clientY);
+    const cellTopLeft = clientToStage(r.left, r.top);
+
+    runChipDrag(e, chip, startStage.x - cellTopLeft.x, startStage.y - cellTopLeft.y,
+      () => createFileItem(name, icon));
+  });
 });
 
-// Create a new Snippets item + its viewer panel from captured document HTML
-function createSnippet(html, text) {
-  snippetSeq++;
-  const panelId = `panel-snippet-${snippetSeq}`;
-  // Name it from the first few words of the selection
+/* ── Drag the BROWSER URL → a "Web pages" folder entry ──
+   Drags the address-bar pill; on drop, captures the whole page (a CLONE of the
+   browser's authored .browser-content — it's all local DOM, so the viewer mirrors
+   the page, not a screenshot). */
+const urlPill = document.querySelector('#win-browser .browser-url');
+if (urlPill && browserContent) {
+  urlPill.addEventListener('mousedown', (e) => {
+    const domain = (urlPill.querySelector('.domain')?.textContent || '').trim();
+    const path   = (urlPill.querySelector('.path')?.textContent || '').trim();
+
+    // Full-size copy of the URL pill that follows the cursor.
+    const r = urlPill.getBoundingClientRect();
+    const s = stageScale();
+    const chip = document.createElement('div');
+    chip.className = 'browser-url drag-url';
+    chip.style.width = (r.width / s) + 'px';
+    chip.innerHTML =
+      `<span class="lock">🔒</span><span class="domain">${domain}</span><span class="path">${path}</span>`;
+
+    const startStage = clientToStage(e.clientX, e.clientY);
+    const pillTopLeft = clientToStage(r.left, r.top);
+
+    runChipDrag(e, chip, startStage.x - pillTopLeft.x, startStage.y - pillTopLeft.y,
+      () => createWebPageItem(domain, path, browserContent.innerHTML));
+  });
+}
+
+/* ── Item factories ── */
+
+// Wire a freshly-created row: click to open, hover to preview, brief land-flash.
+function wireItem(item) {
+  item.addEventListener('click', () => openItem(item));
+  item.addEventListener('mouseenter', () => showPreview(item));
+  item.addEventListener('mouseleave', hidePreview);
+  item.classList.add('snippet-new');
+  setTimeout(() => item.classList.remove('snippet-new'), 800);
+}
+
+// Lazily create (once) a named folder group in the tree and return it. Cached on
+// `groups` by id so repeated drops reuse the same folder.
+const groups = {};
+function ensureGroup(id, label) {
+  if (groups[id]) return groups[id];
+  const group = document.createElement('div');
+  group.className = 'fb-group revealed';
+  group.id = id;
+  group.innerHTML =
+    `<div class="fb-folder">
+       <img class="fb-folder-icon-img" src="icons/folder.png" alt="">
+       <span class="fb-name">${label}</span>
+     </div>`;
+  fbItems.appendChild(group);
+  groups[id] = group;
+  return group;
+}
+const ensureSnippetsGroup = () => ensureGroup('fb-snippets-group', 'Snippets');
+const ensureWebPagesGroup = () => ensureGroup('fb-webpages-group', 'Web pages');
+
+// Text clip (doc/browser) → a snippet panel + a row nested in Snippets.
+function createSnippet(html, text, provenance) {
+  itemSeq++;
+  const panelId = `panel-snippet-${itemSeq}`;
   const words = text.split(/\s+/).slice(0, 3).join('-').replace(/[^\w-]/g, '').toLowerCase();
   const name = `${words || 'snippet'}.txt`;
 
-  // Panel
   const panel = document.createElement('div');
   panel.className = 'viewer-panel snippet-panel';
   panel.id = panelId;
   panel.innerHTML =
     `<div class="snippet-body">
-       <div class="snippet-provenance">Clipped from Design Proposal.doc</div>
+       <div class="snippet-provenance">${provenance}</div>
        <div class="snippet-content">${html}</div>
      </div>`;
   panelsWrap.appendChild(panel);
 
-  // File row (revealed immediately, nested in Snippets)
   const item = document.createElement('div');
   item.className = 'fb-item fb-nested revealed';
   item.dataset.panel = panelId;
   item.dataset.kind = 'text';
   item.innerHTML = `<span class="fb-ico">📝</span><span class="fb-name">${name}</span>`;
-  snippetsGroup.appendChild(item);
+  ensureSnippetsGroup().appendChild(item);
 
-  // Make sure the Snippets group is shown
-  snippetsGroup.classList.add('revealed');
+  wireItem(item);
+}
 
-  // Wire interactions (click to open, hover preview)
-  item.addEventListener('click', () => openItem(item));
-  item.addEventListener('mouseenter', () => showPreview(item));
-  item.addEventListener('mouseleave', hidePreview);
+// Finder icon → a top-level file row + its viewer panel. Spreadsheets reuse the
+// authored budget panel (same toolbar/formula-bar/grid view); everything else gets
+// a simple "no preview" placeholder.
+const SPREADSHEET_RE = /\.(xlsx|xls|csv|numbers)$/i;
+function createFileItem(name, icon) {
+  itemSeq++;
+  const panelId = `panel-file-${itemSeq}`;
 
-  // Briefly flash the new item so the user sees it land
-  item.classList.add('snippet-new');
-  setTimeout(() => item.classList.remove('snippet-new'), 800);
+  const panel = document.createElement('div');
+  panel.id = panelId;
+  if (SPREADSHEET_RE.test(name)) {
+    // Clone the authored spreadsheet view so it reads as a real app, not a placeholder.
+    panel.className = 'viewer-panel sheet-panel';
+    panel.innerHTML = document.getElementById('panel-budget').innerHTML;
+  } else {
+    panel.className = 'viewer-panel file-panel';
+    panel.innerHTML =
+      `<div class="file-panel-inner">
+         <div class="file-panel-icon">${icon}</div>
+         <div class="file-panel-name">${name}</div>
+         <div class="file-panel-note">No preview available</div>
+       </div>`;
+  }
+  panelsWrap.appendChild(panel);
+
+  // Top-level row (sibling of the document), kept ABOVE any folder group so plain
+  // files stay grouped above the Snippets / Web pages folders.
+  const item = document.createElement('div');
+  item.className = 'fb-item revealed';
+  item.dataset.panel = panelId;
+  item.dataset.kind = 'file';
+  item.innerHTML = `<span class="fb-ico">${icon}</span><span class="fb-name">${name}</span>`;
+  const firstGroup = fbItems.querySelector('.fb-group');
+  if (firstGroup) fbItems.insertBefore(item, firstGroup);
+  else fbItems.appendChild(item);
+
+  wireItem(item);
+}
+
+// Browser URL → a row nested in "Web pages" + a viewer panel that MIRRORS the page
+// (a clone of the browser's authored .browser-content — it's all local DOM, so this
+// is the real markup, not a screenshot). Clicking the row shows it in the viewer.
+function createWebPageItem(domain, path, pageHTML) {
+  itemSeq++;
+  const panelId = `panel-web-${itemSeq}`;
+
+  const panel = document.createElement('div');
+  panel.className = 'viewer-panel web-panel';
+  panel.id = panelId;
+  // .browser-content is the scroll container in the browser; reuse it here so the
+  // page's own .page-* styles (css/windows.css) apply unchanged.
+  panel.innerHTML = `<div class="browser-content">${pageHTML}</div>`;
+  panelsWrap.appendChild(panel);
+
+  const item = document.createElement('div');
+  item.className = 'fb-item fb-nested revealed';
+  item.dataset.panel = panelId;
+  item.dataset.kind = 'webpage';
+  item.innerHTML = `<span class="fb-ico">🌐</span><span class="fb-name">${domain}</span>`;
+  ensureWebPagesGroup().appendChild(item);
+
+  wireItem(item);
 }

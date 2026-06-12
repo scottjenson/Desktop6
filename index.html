@@ -77,33 +77,15 @@
     <div id="filebrowser">
       <div class="fb-header"><img class="fb-folder-img" src="icons/folder.png" alt=""> PROJECT FILES</div>
       <div class="fb-tree" id="fb-items">
-        <!-- Flat list of file items (siblings). data-panel links a row to a viewer
-             panel id. Items reveal one at a time via the down arrow. Folders will be
-             added later as additional .fb-folder siblings. -->
+        <!-- Starts with ONLY the open document. Everything else arrives by dragging:
+             a Finder icon → a top-level file row; a doc/browser text selection → a
+             clip nested in a "Snippets" folder (created on first drop). See js/demo3.js.
+             data-panel links a row to a viewer panel id. -->
 
-        <!-- The document we're currently viewing — revealed by default -->
-        <div class="fb-item revealed" data-panel="panel-doc" data-kind="doc">
+        <!-- The document we're currently viewing (selected on open) -->
+        <div class="fb-item revealed active" data-panel="panel-doc" data-kind="doc">
           <img class="fb-file-img" src="icons/document.png" alt="">
           <span class="fb-name">Design Proposal.doc</span>
-        </div>
-
-        <div class="fb-item" data-panel="panel-budget" data-kind="spreadsheet">
-          <span class="fb-ico">📊</span>
-          <span class="fb-name">budget.csv</span>
-        </div>
-
-        <!-- Snippets folder + its contents reveal together as one step.
-             New snippets dragged from the document are appended here at runtime. -->
-        <div class="fb-group" id="fb-snippets-group">
-          <div class="fb-folder">
-            <img class="fb-folder-icon-img" src="icons/folder.png" alt="">
-            <span class="fb-name">Snippets</span>
-          </div>
-
-          <div class="fb-item fb-nested" data-panel="panel-notes" data-kind="markdown">
-            <span class="fb-ico">📝</span>
-            <span class="fb-name">research-notes.md</span>
-          </div>
         </div>
 
       </div>
@@ -112,22 +94,17 @@
     <!-- Viewer content clip layer (rounds corners; sits above the file browser) -->
     <div class="viewer-clip">
 
-    <!-- Viewer titlebar (shared frame) -->
+    <!-- Viewer titlebar (shared frame). No tab bar: the file-browser sidebar
+         highlight (.fb-item.active) is the only selection indicator, and the title
+         reflects whichever item is selected (set by js/demo3.js). -->
     <div class="win-titlebar">
       <div class="traffic-lights">
         <div class="tl red"></div><div class="tl yellow"></div><div class="tl green"></div>
       </div>
-      <span class="win-title">Design Proposal</span>
+      <span class="win-title" id="viewer-title">Design Proposal</span>
     </div>
 
-    <!-- Tab bar — Tab 1 (document) always present; clicking a file adds a tab -->
-    <div class="viewer-tabs" id="viewer-tabs">
-      <div class="viewer-tab active" data-panel="panel-doc">
-        <span class="vt-ico">📄</span><span class="vt-label">Design Proposal.doc</span>
-      </div>
-    </div>
-
-    <!-- Tab panels -->
+    <!-- Viewer panels — exactly one is .active at a time (= the selected sidebar row) -->
     <div class="viewer-panels" id="viewer-panels">
 
       <!-- TAB 1: the document — markup lifted from Demo 2's wordprocessor.html -->
