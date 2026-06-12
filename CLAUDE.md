@@ -21,17 +21,19 @@ preview inline and open beside the document. Items appear in the browser, you ho
 them for a preview card, and clicking one opens it as a **new tab** in the viewer
 (the document is always Tab 1 and is never lost).
 
-**Crucial framing — this is staged, not interactive.** The drag-in / clipboard / file
-mechanics are *narrated over*, not implemented. The only real interactivity is:
-- `[→]` slide the file browser out (toggle)
-- `[Space]` reveal the next pre-authored item, one at a time (lets you pace narration)
-- click a file row → open its tab
-- hover a file row → preview card (CSS-only)
+**Crucial framing — staged, but the drag IS real now.** The clipboard/filesystem
+*story* is narrated, but the holding-area interactions have since been built for real
+(custom pointer-drag, not native DnD — see Learnings). The live interactivity is:
+- `[←]`/`[→]` slide the file browser out / in
+- `[w]` toggle the two side windows (Finder / Browser)
+- drag into the open browser: a Finder icon → a file row; a doc/browser text selection
+  → a Snippet (doc = cut, browser = copy); the browser URL → a mirrored Web page
+- click a sidebar row → show it in the viewer (no tabs); the highlight is the selection
 
-Do **not** build real drag-and-drop, file parsing, or clipboard plumbing unless asked.
-The items are a **fixed, pre-authored set** (image, markdown, spreadsheet) plus the
-document. Their content is hand-written to *look* real — that authoring is the actual
-work; the mechanics are trivial.
+Source *content* (the doc prose, the Verge article, the spreadsheet) is still hand-written
+to *look* real — that authoring is the actual work. Do **not** build real file parsing,
+network fetches, or clipboard plumbing; the bridge is faked, the gestures are not.
+See the DONE list + gesture map below for the authoritative current state.
 
 ---
 
@@ -82,14 +84,18 @@ copy 1:1 from Demo 2. Do not introduce a second coordinate system.
 ### File map
 ```
 index.html            #stage: grid bg, menubar (pill), the attached unit, the two side
-                      windows (Finder/Browser, inlined), dock, trash. All panel content
-                      is inlined here too (doc / image / markdown / sheet).
+                      windows (Finder/Browser, inlined), dock, trash. Viewer panels are
+                      inlined here too: the doc + the spreadsheet (the latter kept as the
+                      clone source for spreadsheet files dragged from Finder).
 css/base.css          reset, :root vars, #stage letterbox scaling. (from Demo 2)
 css/desktop.css       chrome: menubar pill, dock, trash, shared .os-window frame. (LIFTED — keep in sync)
-css/wordprocessor.css .wp-* document styles for Tab 1. (LIFTED from Demo 2's windows.css)
-css/windows.css       per-window chrome for the side windows (Finder/Browser/etc). (LIFTED from Demo 2)
-css/demo3.css         NEW: parity rect, file browser, tab bar, hover cards, panel types,
-                      side-window placement/scale, doc-narrowing overrides.
+css/wordprocessor.css canonical .wp-* document styles (uses --win-* vars from windows.css;
+                      custom props resolve at use-time so link order is fine).
+css/windows.css       chrome for the two side windows only — Finder + Browser, plus the
+                      shared --win-* vars. (Obsidian/Music/duplicate .wp-* were stripped.)
+css/demo3.css         NEW: parity rect, file browser, hover cards (flagged off), panel
+                      types (snippet/file/web/sheet), side-window placement/scale,
+                      doc-narrowing overrides.
 js/stage.js           letterbox scale on load + resize.
 js/grid-bg.js         WebGL background grid (Demo 2's shader ported; replaces the old PNG).
 js/demo3.js           gestures: slide browser, sidebar-row select (no tabs), window
