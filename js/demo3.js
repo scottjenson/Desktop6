@@ -178,31 +178,50 @@ document.querySelectorAll('#win-finder .finder-file').forEach(file => {
   });
 });
 
-/* ── Keyboard choreography ── */
-/* [w] toggles the two side windows (Finder left, Browser right). They start
-   hidden (.win-hidden) so the opening frame matches Demo 2; this reveals/hides
-   both at once during narration. */
+/* ── Side windows (Finder left, Browser right) ──
+   They start hidden (.win-hidden) so the opening frame matches Demo 2. */
 const sideWindows = document.querySelectorAll('#win-finder, #win-browser');
-function toggleSideWindows() {
-  sideWindows.forEach(w => w.classList.toggle('win-hidden'));
+function revealSideWindows() { sideWindows.forEach(w => w.classList.remove('win-hidden')); }
+function toggleSideWindows() { sideWindows.forEach(w => w.classList.toggle('win-hidden')); }
+
+/* ── Stage sequencer (the demo's spine) ──
+   Spacebar advances the scripted narrative one beat at a time (like a presentation
+   clicker). Manual drags stay live throughout — Space only fires the SCRIPTED beats.
+   stages[i] runs when advancing INTO stage i+2 (Stage 1 is just the opening state, so
+   the first Space runs stages[0] = the Stage-2 beat). Beats past the end are no-ops.
+
+   Stages (see plan.md):
+     1  opening state (doc only, side windows hidden) — no beat, it's how we load
+     2  reveal the two side windows                   — stages[0]
+     3  bulk-add the hotels                            — TODO (chunk 3)
+     4  categorize: flat rows animate into folders     — TODO (chunk 4)
+     5  (map is triggered by the chatbox, not Space)               */
+let stageIdx = 0;
+const stages = [
+  revealSideWindows,                       // → Stage 2
+  // TODO chunk 3: bulkAddHotels,
+  // TODO chunk 4: categorize,
+];
+function advanceStage() {
+  if (stageIdx >= stages.length) return;   // nothing scripted left
+  stages[stageIdx++]();
 }
 
+/* ── Keyboard choreography ── */
 window.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowLeft')  { e.preventDefault(); showBrowser(); }
   else if (e.key === 'ArrowRight') { e.preventDefault(); hideBrowser(); }
+  else if (e.key === ' ')          { e.preventDefault(); advanceStage(); }
   else if (e.key === 'w' || e.key === 'W') { e.preventDefault(); toggleSideWindows(); }
 });
 
 /* ══════════════════════════════════════════════════════════════════════════
-   DRAG INTO THE FILE BROWSER
+   DRAG INTO THE SCRAPBOOK
    Custom pointer-drag (not native HTML5 DnD, which is fragile under the scaled
-   stage). Two sources, one shared mechanic:
-     • a text selection in the doc OR the browser → a clip nested in "Snippets"
-       (the selection is CUT from its source);
-     • a Finder icon → a top-level file row (sibling of the document).
-   In both cases a full-size visual chip follows the cursor and a drop over the
-   open file browser creates the item. The Snippets folder is created lazily on
-   the first text drop (it is no longer authored into the HTML).
+   stage). Sources: a doc/browser text selection (CUT from doc, COPY from browser),
+   a Finder icon, and the browser URL pill. A full-size visual chip follows the
+   cursor; a drop over the open scrapbook creates the item. Everything lands FLAT as
+   a top-level row — no folders yet (folders arrive in the later "categorize" stage).
    ══════════════════════════════════════════════════════════════════════════ */
 let itemSeq = 0;
 
@@ -382,27 +401,15 @@ function wireItem(item) {
   setTimeout(() => item.classList.remove('snippet-new'), 800);
 }
 
-// Lazily create (once) a named folder group in the tree and return it. Cached on
-// `groups` by id so repeated drops reuse the same folder.
-const groups = {};
-function ensureGroup(id, label) {
-  if (groups[id]) return groups[id];
-  const group = document.createElement('div');
-  group.className = 'fb-group revealed';
-  group.id = id;
-  group.innerHTML =
-    `<div class="fb-folder">
-       <img class="fb-folder-icon-img" src="icons/folder.png" alt="">
-       <span class="fb-name">${label}</span>
-     </div>`;
-  fbItems.appendChild(group);
-  groups[id] = group;
-  return group;
+// Append a freshly-built row to the scrapbook as a flat, top-level entry, then wire
+// it. (Stage 1–3: everything is flat — no folders. Folders are introduced later, in
+// the "categorize" stage, which will re-home these rows.)
+function addRow(item) {
+  fbItems.appendChild(item);
+  wireItem(item);
 }
-const ensureSnippetsGroup = () => ensureGroup('fb-snippets-group', 'Snippets');
-const ensureWebPagesGroup = () => ensureGroup('fb-webpages-group', 'Web pages');
 
-// Text clip (doc/browser) → a snippet panel + a row nested in Snippets.
+// Text clip (doc/browser) → a snippet panel + a top-level row.
 function createSnippet(html, text, provenance) {
   itemSeq++;
   const panelId = `panel-snippet-${itemSeq}`;
@@ -420,18 +427,16 @@ function createSnippet(html, text, provenance) {
   panelsWrap.appendChild(panel);
 
   const item = document.createElement('div');
-  item.className = 'fb-item fb-nested revealed';
+  item.className = 'fb-item revealed';
   item.dataset.panel = panelId;
   item.dataset.kind = 'text';
   item.innerHTML = `<span class="fb-ico">📝</span><span class="fb-name">${name}</span>`;
-  ensureSnippetsGroup().appendChild(item);
-
-  wireItem(item);
+  addRow(item);
 }
 
-// Finder icon → a top-level file row + its viewer panel. Spreadsheets reuse the
-// authored budget panel (same toolbar/formula-bar/grid view); everything else gets
-// a simple "no preview" placeholder.
+// Finder icon → a top-level row + its viewer panel. Spreadsheets reuse the authored
+// budget panel (same toolbar/formula-bar/grid view); everything else gets a simple
+// "no preview" placeholder.
 const SPREADSHEET_RE = /\.(xlsx|xls|csv|numbers)$/i;
 function createFileItem(name, icon) {
   itemSeq++;
@@ -454,23 +459,17 @@ function createFileItem(name, icon) {
   }
   panelsWrap.appendChild(panel);
 
-  // Top-level row (sibling of the document), kept ABOVE any folder group so plain
-  // files stay grouped above the Snippets / Web pages folders.
   const item = document.createElement('div');
   item.className = 'fb-item revealed';
   item.dataset.panel = panelId;
   item.dataset.kind = 'file';
   item.innerHTML = `<span class="fb-ico">${icon}</span><span class="fb-name">${name}</span>`;
-  const firstGroup = fbItems.querySelector('.fb-group');
-  if (firstGroup) fbItems.insertBefore(item, firstGroup);
-  else fbItems.appendChild(item);
-
-  wireItem(item);
+  addRow(item);
 }
 
-// Browser URL → a row nested in "Web pages" + a viewer panel that MIRRORS the page
-// (a clone of the browser's authored .browser-content — it's all local DOM, so this
-// is the real markup, not a screenshot). Clicking the row shows it in the viewer.
+// Browser URL → a top-level row + a viewer panel that MIRRORS the page (a clone of the
+// browser's authored .browser-content — it's all local DOM, so this is the real markup,
+// not a screenshot). Clicking the row shows it in the viewer.
 function createWebPageItem(domain, path, pageHTML) {
   itemSeq++;
   const panelId = `panel-web-${itemSeq}`;
@@ -484,11 +483,9 @@ function createWebPageItem(domain, path, pageHTML) {
   panelsWrap.appendChild(panel);
 
   const item = document.createElement('div');
-  item.className = 'fb-item fb-nested revealed';
+  item.className = 'fb-item revealed';
   item.dataset.panel = panelId;
   item.dataset.kind = 'webpage';
   item.innerHTML = `<span class="fb-ico">🌐</span><span class="fb-name">${domain}</span>`;
-  ensureWebPagesGroup().appendChild(item);
-
-  wireItem(item);
+  addRow(item);
 }

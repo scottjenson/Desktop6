@@ -73,14 +73,14 @@
   <!-- ── THE ATTACHED UNIT: file browser (left) + viewer (right) ── -->
   <div id="viewer" class="os-window">
 
-    <!-- File browser — slides out to the LEFT; viewer never moves -->
+    <!-- Scrapbook — slides out to the LEFT; viewer never moves -->
     <div id="filebrowser">
-      <div class="fb-header"><img class="fb-folder-img" src="icons/folder.png" alt=""> PROJECT FILES</div>
+      <div class="fb-header"><img class="fb-folder-img" src="icons/folder.png" alt=""> SCRAPBOOK</div>
       <div class="fb-tree" id="fb-items">
-        <!-- Starts with ONLY the open document. Everything else arrives by dragging:
-             a Finder icon → a top-level file row; a doc/browser text selection → a
-             clip nested in a "Snippets" folder (created on first drop). See js/demo3.js.
-             data-panel links a row to a viewer panel id. -->
+        <!-- Starts with ONLY the open document. Everything else arrives FLAT (no
+             folders yet — folders appear later, in the "categorize" stage). A drag
+             of a Finder icon / doc-or-browser text / the browser URL all append a
+             top-level row here. data-panel links a row to a viewer panel id. -->
 
         <!-- The document we're currently viewing (selected on open) -->
         <div class="fb-item revealed active" data-panel="panel-doc" data-kind="doc">
