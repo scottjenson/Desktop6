@@ -88,6 +88,26 @@
           <span class="fb-name">Design Proposal.doc</span>
         </div>
 
+        <!-- STAGE 3 — hotels gathered "from around the web". Pre-authored but hidden
+             (.stage-hidden); bulkAddHotels() reveals them flat on the Stage-3 Space.
+             data-mx/data-my are normalized (0–1) pin positions for the Stage-5 map. -->
+        <div class="fb-item stage-hidden hotel-row" data-panel="panel-hotel-adlon"
+             data-kind="hotel" data-mx="0.50" data-my="0.50">
+          <span class="fb-ico">🏨</span><span class="fb-name">Hotel Adlon Kempinski</span>
+        </div>
+        <div class="fb-item stage-hidden hotel-row" data-panel="panel-hotel-michelberger"
+             data-kind="hotel" data-mx="0.68" data-my="0.62">
+          <span class="fb-ico">🏨</span><span class="fb-name">Michelberger Hotel</span>
+        </div>
+        <div class="fb-item stage-hidden hotel-row" data-panel="panel-hotel-25hours"
+             data-kind="hotel" data-mx="0.22" data-my="0.52">
+          <span class="fb-ico">🏨</span><span class="fb-name">25hours Hotel Bikini</span>
+        </div>
+        <div class="fb-item stage-hidden hotel-row" data-panel="panel-hotel-oderberger"
+             data-kind="hotel" data-mx="0.55" data-my="0.30">
+          <span class="fb-ico">🏨</span><span class="fb-name">Hotel Oderberger</span>
+        </div>
+
       </div>
     </div>
 
@@ -208,6 +228,51 @@
               <tr class="total"><td class="row-head">6</td><td></td><td>Total</td><td class="num">$51,500</td></tr>
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- STAGE 3 hotel panels (shown when their scrapbook row is clicked). -->
+      <div class="viewer-panel hotel-panel" id="panel-hotel-adlon">
+        <div class="hotel-photo" style="background:linear-gradient(135deg,#6b7a99,#2f3a52);">🏛️</div>
+        <div class="hotel-body">
+          <h1 class="hotel-name">Hotel Adlon Kempinski</h1>
+          <div class="hotel-loc">Mitte · Unter den Linden, by the Brandenburg Gate</div>
+          <div class="hotel-price">€420 <span>/ night</span></div>
+          <p class="hotel-blurb">Berlin's grande dame, steps from the Brandenburg Gate and Pariser Platz. Marble lobby, a famed afternoon tea, and rooms overlooking the boulevard. Splurge option — saved for the gala night.</p>
+          <div class="hotel-tags"><span>★ 4.7</span><span>Spa</span><span>Central</span></div>
+        </div>
+      </div>
+
+      <div class="viewer-panel hotel-panel" id="panel-hotel-michelberger">
+        <div class="hotel-photo" style="background:linear-gradient(135deg,#c08a5a,#7a4a2a);">🎸</div>
+        <div class="hotel-body">
+          <h1 class="hotel-name">Michelberger Hotel</h1>
+          <div class="hotel-loc">Friedrichshain · across from Warschauer Straße</div>
+          <div class="hotel-price">€145 <span>/ night</span></div>
+          <p class="hotel-blurb">Playful, design-forward, and very Berlin — a former factory turned hotel with a leafy courtyard, a great bar, and the U1 line right outside for getting across town. Walkable to the river and the clubs.</p>
+          <div class="hotel-tags"><span>★ 4.5</span><span>Design</span><span>Nightlife</span></div>
+        </div>
+      </div>
+
+      <div class="viewer-panel hotel-panel" id="panel-hotel-25hours">
+        <div class="hotel-photo" style="background:linear-gradient(135deg,#4a9e8f,#1f5e54);">🐒</div>
+        <div class="hotel-body">
+          <h1 class="hotel-name">25hours Hotel Bikini Berlin</h1>
+          <div class="hotel-loc">Charlottenburg · overlooking the Zoo & Tiergarten</div>
+          <div class="hotel-price">€190 <span>/ night</span></div>
+          <p class="hotel-blurb">West Berlin with a view — the "jungle" rooms look straight into the zoo, and the Monkey Bar on the roof has the best sunset over the Gedächtniskirche. Handy for the conference venue.</p>
+          <div class="hotel-tags"><span>★ 4.6</span><span>Rooftop</span><span>Views</span></div>
+        </div>
+      </div>
+
+      <div class="viewer-panel hotel-panel" id="panel-hotel-oderberger">
+        <div class="hotel-photo" style="background:linear-gradient(135deg,#8a6db0,#4a2f7a);">🛁</div>
+        <div class="hotel-body">
+          <h1 class="hotel-name">Hotel Oderberger</h1>
+          <div class="hotel-loc">Prenzlauer Berg · Oderberger Straße</div>
+          <div class="hotel-price">€165 <span>/ night</span></div>
+          <p class="hotel-blurb">A boutique stay built into a restored 19th-century public bathhouse — you can swim in the original pool hall. Quiet, tree-lined neighbourhood full of cafés, an easy tram ride from Mitte.</p>
+          <div class="hotel-tags"><span>★ 4.6</span><span>Historic</span><span>Pool</span></div>
         </div>
       </div>
 

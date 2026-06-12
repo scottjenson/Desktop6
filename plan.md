@@ -101,8 +101,11 @@ the *scripted* additions; the user can still drag things in by hand whenever.
 - [x] Chunk 2 — Stage sequencer (`stages[]` + `advanceStage`, Spacebar). Stage 2 beat =
       `revealSideWindows`. Verified: first Space reveals Finder+Browser. Stages 3–4 are
       stubbed as TODO entries in the `stages` array.  ← **CONFIRM HERE before chunk 3**
-- [ ] Chunk 3 — Stage 3 hotels (4 pre-authored Berlin hotels, hidden; Space bulk-reveals
-      flat). Add `bulkAddHotels` as stages[1].
+- [x] Chunk 3 — Stage 3 hotels. 4 pre-authored Berlin hotels (Adlon/Mitte,
+      Michelberger/Friedrichshain, 25hours/Charlottenburg, Oderberger/Prenzlauer Berg),
+      hidden via `.stage-hidden`. `bulkAddHotels` (stages[1]) reveals them flat + wires
+      click/hover. Rows carry data-mx/data-my normalized pin coords for the Stage-5 map.
+      Hotel panels + `.hotel-panel` CSS authored. Verified.
 - [ ] Chunk 4 — Stage 4 categorize (folders appear; hotels→Hotels folder, others→folders).
       Add `categorize` as stages[2].
 - [ ] Chunk 5 — Stage 5 chatbox + map (click Hotels folder → chatbox → map item).

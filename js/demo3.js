@@ -184,6 +184,21 @@ const sideWindows = document.querySelectorAll('#win-finder, #win-browser');
 function revealSideWindows() { sideWindows.forEach(w => w.classList.remove('win-hidden')); }
 function toggleSideWindows() { sideWindows.forEach(w => w.classList.toggle('win-hidden')); }
 
+/* ── Stage 3: bulk-add the hotels ──
+   The hotel rows are pre-authored in the scrapbook but hidden (.stage-hidden). Reveal
+   them all at once, flat, and wire each row (click → open its authored panel). A brief
+   flash makes the batch "land". They already have data-panel + data-mx/my (for the map). */
+function bulkAddHotels() {
+  document.querySelectorAll('#fb-items .hotel-row.stage-hidden').forEach(row => {
+    row.classList.remove('stage-hidden');
+    row.addEventListener('click', () => openItem(row));
+    row.addEventListener('mouseenter', () => showPreview(row));
+    row.addEventListener('mouseleave', hidePreview);
+    row.classList.add('snippet-new');
+    setTimeout(() => row.classList.remove('snippet-new'), 800);
+  });
+}
+
 /* ── Stage sequencer (the demo's spine) ──
    Spacebar advances the scripted narrative one beat at a time (like a presentation
    clicker). Manual drags stay live throughout — Space only fires the SCRIPTED beats.
@@ -199,7 +214,7 @@ function toggleSideWindows() { sideWindows.forEach(w => w.classList.toggle('win-
 let stageIdx = 0;
 const stages = [
   revealSideWindows,                       // → Stage 2
-  // TODO chunk 3: bulkAddHotels,
+  bulkAddHotels,                           // → Stage 3
   // TODO chunk 4: categorize,
 ];
 function advanceStage() {
