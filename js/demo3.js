@@ -35,7 +35,7 @@ function openItem(item) {
     it.classList.toggle('active', it === item));
 
   // Title = the item's name. Strip a file extension, but not for web pages (a domain
-  // like "theverge.com" isn't name.ext).
+  // like "timeout.com" isn't name.ext).
   const nameEl = item.querySelector('.fb-name');
   if (nameEl) {
     const raw = nameEl.textContent;
@@ -344,13 +344,13 @@ function startSelectionDrag(e, provenance, cut) {
 
 const docPanel = document.getElementById('panel-doc');
 docPanel.addEventListener('mousedown', (e) =>
-  startSelectionDrag(e, 'Clipped from Design Proposal.doc', true));   // cut
+  startSelectionDrag(e, 'Clipped from Tech Corridor Study.doc', true));   // cut
 
 // Browser article text → same mechanic, but a COPY (the page can't be edited).
 const browserContent = document.querySelector('#win-browser .browser-content');
 if (browserContent) {
   browserContent.addEventListener('mousedown', (e) =>
-    startSelectionDrag(e, 'Clipped from The Verge', false));          // copy
+    startSelectionDrag(e, 'Clipped from Time Out — Berlin Hotels', false));   // copy
 }
 
 /* ── Drag a FINDER ICON → a top-level file row ── */

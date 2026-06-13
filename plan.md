@@ -12,6 +12,12 @@ The narrative arc is **flat accretion (messy by design) → "anything goes in" �
 gather → the system imposes structure → structure becomes a substrate for a new action
 (a map).**
 
+**Content is Berlin-themed throughout** to tie the arc together: the document is
+"Revitalizing the Downtown Tech Corridor" (a Berlin site-study, tall enough to scroll),
+the web page is "Great Hotels in Berlin" (Time Out, with the Adlon + address and the
+other hotels as cards), and the 4 scrapbook hotels are Berlin hotels. This motivates
+*why* hotels are being gathered, and sets up chunk 4 (categorize) + chunk 5 (map).
+
 The whole arc is driven by **Spacebar** = "advance to the next scripted beat" (like a
 presentation clicker). **Manual drags stay live the entire time** — Space only triggers
 the *scripted* additions; the user can still drag things in by hand whenever.

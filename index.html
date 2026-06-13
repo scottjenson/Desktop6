@@ -85,7 +85,7 @@
         <!-- The document we're currently viewing (selected on open) -->
         <div class="fb-item revealed active" data-panel="panel-doc" data-kind="doc">
           <img class="fb-file-img" src="icons/document.png" alt="">
-          <span class="fb-name">Design Proposal.doc</span>
+          <span class="fb-name">Tech Corridor Study.doc</span>
         </div>
 
         <!-- STAGE 3 — hotels gathered "from around the web". Pre-authored but hidden
@@ -121,7 +121,7 @@
       <div class="traffic-lights">
         <div class="tl red"></div><div class="tl yellow"></div><div class="tl green"></div>
       </div>
-      <span class="win-title" id="viewer-title">Design Proposal</span>
+      <span class="win-title" id="viewer-title">Tech Corridor Study</span>
     </div>
 
     <!-- Viewer panels — exactly one is .active at a time (= the selected sidebar row) -->
@@ -150,27 +150,23 @@
         <div class="win-body">
           <div class="wp-scroll">
             <div class="wp-page">
-              <h1 class="wp-h1">Rethinking the Desktop for Ultra-Wide Displays</h1>
-              <p class="wp-meta">Scott Jenson &nbsp;·&nbsp; Draft v0.4 &nbsp;·&nbsp; May 2026</p>
+              <h1 class="wp-h1">Revitalizing the Downtown Tech Corridor</h1>
+              <p class="wp-meta">Scott Jenson &nbsp;·&nbsp; Working draft &nbsp;·&nbsp; Berlin site study, June 2026</p>
               <h2 class="wp-h2">Executive Summary</h2>
-              <p class="wp-p">Modern displays have grown dramatically wider over the past decade, yet the fundamental model of how we arrange and interact with windows has remained largely unchanged since the early 1990s. This proposal outlines a new spatial interaction paradigm designed specifically for ultra-wide monitors.</p>
-              <p class="wp-p">The core thesis is simple: on a 3440-pixel-wide display, the edges of the screen are genuinely far from the centre. Rather than fighting this geometry with ever-larger windows, we can embrace it — using the edges as a place to park work-in-progress at reduced scale, keeping the centre clear for active focus.</p>
-              <h2 class="wp-h2">Bridging Clipboard and Filesystem</h2>
-              <p class="wp-p">This phase explores a side panel attached to the editor that blurs the line between a clipboard and a folder. Content dragged out of the document — an image, a snippet, a table — becomes a real file in the project, instantly previewable without leaving the writing surface.</p>
-              <ul class="wp-ul">
-                <li>Drag a selection into the panel → it persists as a named file.</li>
-                <li>Hover any file → an inline card previews it in place.</li>
-                <li>Click a file → it opens as a tab beside the document, never replacing it.</li>
-              </ul>
+              <p class="wp-p">The downtown corridor that once anchored the city's technology sector has thinned out over the past decade. Anchor tenants relocated to suburban campuses, ground-floor retail emptied, and the evening foot traffic that sustains a healthy district largely disappeared. This study proposes a phased revitalization that treats the corridor not as office stock to be re-let, but as a living neighbourhood to be re-knit.</p>
+              <p class="wp-p">Our central recommendation is to study Berlin's Mitte and Friedrichshain districts as working models. Both transformed from underused, post-industrial zones into dense, mixed-use technology neighbourhoods within a single generation — without erasing the texture that made them worth visiting in the first place.</p>
+              <h2 class="wp-h2">Why Berlin</h2>
+              <p class="wp-p">Berlin is the clearest example of a city that grew a technology corridor by addition rather than demolition. Startups colonised former factories, courtyards, and bathhouses; the resulting density of cafés, studios, and small venues is exactly the "after hours" vitality our downtown lacks. A field visit is scheduled to walk the relevant districts and meet the planners who guided the change.</p>
+              <p class="wp-p">The site visit spans four neighbourhoods — Mitte, Friedrichshain, Charlottenburg, and Prenzlauer Berg — chosen because each solved a different piece of the puzzle: civic anchoring, nightlife-led density, west-side commercial reinvention, and adaptive reuse of historic stock respectively. Lodging is being gathered close to each so the team can experience the districts directly rather than commuting in.</p>
               <h2 class="wp-h2">Design Principles</h2>
-              <p class="wp-p">Three principles guide the interaction model. First, continuity: content should never disappear when you stop looking at it. Minimising a window today is a one-way door — the work is gone from view and retrieving it requires a deliberate act. The panel model keeps everything reachable without modal disruption.</p>
-              <p class="wp-p">Second, proximity: related artefacts should live physically close to the document that generated them. A moodboard referenced in paragraph three should not require a trip to the filesystem — it should be one hover away, anchored to the text that cares about it.</p>
-              <p class="wp-p">Third, legibility: the panel should communicate the type and provenance of each item at a glance. A dragged image, a pasted snippet, and a linked spreadsheet are visually distinct even at small size, so the cognitive cost of recognising them is near zero.</p>
+              <p class="wp-p">Three principles guide the corridor plan. First, continuity: the street should never go dark. A district that empties at 6pm cannot recover, so ground floors must mix uses that keep light and movement on the pavement into the evening.</p>
+              <p class="wp-p">Second, proximity: the things people need should live physically close together. Housing, work, food, and transit within a short walk is what lets a neighbourhood sustain itself without forcing every trip into a car.</p>
+              <p class="wp-p">Third, legibility: the corridor should communicate what it is at a glance. A visitor stepping off the train should be able to read the district — where to eat, where to work, where to stay — without a map, because the built form makes it obvious.</p>
               <h2 class="wp-h2">Open Questions</h2>
-              <p class="wp-p">Several design decisions remain unresolved and will require user testing to settle. Should the panel persist across documents, or be scoped to a single file? Should items expire after a configurable period, or remain indefinitely? And critically — should the panel be write-only (clipboard-to-file) or bidirectional (edits in the panel reflect back into the document)?</p>
-              <p class="wp-p">The bidirectional case is the most compelling and the most dangerous. Live sync between a panel item and its in-document reference could eliminate an entire class of copy-paste errors. It also introduces the risk of silent, hard-to-undo mutations. A versioned history view — visible in the panel itself — may be the right safety net.</p>
+              <p class="wp-p">Several decisions remain unresolved and will be tested against what we observe on the ground. How much parking can be removed before retail suffers, versus how much must go to make the street walkable? Should incentives target large anchor tenants, or a larger number of small ones? And how do we stage construction so the corridor stays open for business throughout?</p>
+              <p class="wp-p">The anchor-tenant question is the most consequential and the most fraught. A single large employer can revive a district overnight — and hollow it out just as fast if it leaves. A spread of smaller tenants is slower to assemble but far more resilient. Berlin leaned toward the latter, and that choice is worth examining closely.</p>
               <h2 class="wp-h2">Next Steps</h2>
-              <p class="wp-p">User testing across representative authoring tasks, then extending the panel to accept drops from other applications on the desktop. A follow-on prototype will explore the bidirectional sync case with explicit version markers so participants can reason about change history without leaving the document.</p>
+              <p class="wp-p">Finalise the Berlin itinerary and confirm lodging in each of the four districts, then conduct the walking study with the local planning office. A follow-on report will translate the observations into a concrete, phased proposal for the downtown corridor, with cost estimates and a staging plan that keeps the street alive while the work proceeds.</p>
             </div>
           </div>
         </div>
@@ -365,24 +361,24 @@
         <div class="tl yellow"></div>
         <div class="tl green"></div>
       </div>
-      <span class="win-title">The Verge — Technology News</span>
+      <span class="win-title">Great Hotels in Berlin — Time Out</span>
     </div>
     <div class="win-body" style="flex-direction:column;">
       <div class="browser-chrome">
         <div class="browser-tabs">
           <div class="browser-tab active">
-            <span class="tab-favicon">🟦</span>
-            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">The Verge</span>
+            <span class="tab-favicon">🟧</span>
+            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Great Hotels in Berlin</span>
             <span class="tab-close">✕</span>
           </div>
           <div class="browser-tab">
-            <span class="tab-favicon">🔴</span>
-            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">YouTube</span>
+            <span class="tab-favicon">🔵</span>
+            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Maps — Berlin</span>
             <span class="tab-close">✕</span>
           </div>
           <div class="browser-tab">
-            <span class="tab-favicon">🐙</span>
-            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">GitHub</span>
+            <span class="tab-favicon">🟢</span>
+            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">DB Bahn</span>
             <span class="tab-close">✕</span>
           </div>
           <div style="width:28px;height:28px;background:rgba(0,0,0,0.06);border-radius:6px;display:flex;align-items:center;justify-content:center;margin-left:4px;align-self:center;font-size:16px;color:#666;">+</div>
@@ -393,99 +389,71 @@
           <span class="browser-nav-btn">↻</span>
           <div class="browser-url">
             <span class="lock">🔒</span>
-            <span class="domain">theverge.com</span>
-            <span class="path">/2026/5/30/chrome-canvas-html-api</span>
+            <span class="domain">timeout.com</span>
+            <span class="path">/berlin/hotels/best-hotels-in-berlin</span>
           </div>
           <span style="font-size:18px;color:#888;">⋮</span>
         </div>
       </div>
       <div class="browser-content">
         <div class="page-nav">
-          <div class="page-logo">THE VERGE</div>
+          <div class="page-logo">Time Out</div>
           <div class="page-nav-links">
-            <span class="page-nav-link active">Tech</span>
-            <span class="page-nav-link">Science</span>
-            <span class="page-nav-link">AI</span>
-            <span class="page-nav-link">Reviews</span>
-            <span class="page-nav-link">Deals</span>
+            <span class="page-nav-link active">Hotels</span>
+            <span class="page-nav-link">Things to Do</span>
+            <span class="page-nav-link">Food</span>
+            <span class="page-nav-link">Nightlife</span>
+            <span class="page-nav-link">Travel</span>
           </div>
         </div>
-        <div class="page-hero">
-          <div class="page-hero-eyebrow">Chrome 146 · Web APIs</div>
-          <div class="page-hero-h1">Chrome's HTML-in-Canvas API<br>is here — and it's wild</div>
-          <div class="page-hero-sub">Google's experimental <code style="background:rgba(255,255,255,0.15);padding:1px 5px;border-radius:3px;">layoutsubtree</code> attribute lets browsers render live DOM elements directly into a WebGL texture — enabling a new class of spatial UIs.</div>
-          <div class="page-hero-cta">Read More</div>
+        <div class="page-hero" style="background:linear-gradient(135deg,#1a3a2e 0%,#2d6e54 100%);">
+          <div class="page-hero-eyebrow">Berlin · Where to Stay</div>
+          <div class="page-hero-h1">Great Hotels in Berlin<br>for every kind of trip</div>
+          <div class="page-hero-sub">From a grande dame by the Brandenburg Gate to a design hotel in the heart of the club district — our pick of the best places to stay across Berlin's most interesting neighbourhoods.</div>
+          <div class="page-hero-cta">See the List</div>
         </div>
         <div class="page-body">
-          <div class="page-section-label">Deep Dive</div>
-          <div class="page-h2">What does it mean for the web?</div>
-          <div class="page-p">For years, developers have hacked around the browser's compositing model to get HTML content into WebGL. Libraries like <strong>html2canvas</strong> used screenshot tricks, while CSS3DRenderer faked depth with matrix transforms. Neither approach gave you true WebGL integration.</div>
-          <div class="page-p">The new <code style="background:#f0f0f0;padding:1px 4px;border-radius:3px;font-size:12px;">layoutsubtree</code> canvas attribute changes that. Child DOM nodes are rasterized by the browser's own layout engine and exposed to the canvas paint event — meaning hover states, CSS animations, and interactive elements all work inside the texture.</div>
+          <div class="page-section-label">Editor's Pick</div>
+          <div class="page-h2">Hotel Adlon Kempinski</div>
+          <div class="page-p">If you only know one Berlin hotel, it's this one. The Adlon has stood beside the Brandenburg Gate since 1907, and the location is unbeatable — you step out of the lobby and onto Pariser Platz, with Unter den Linden stretching east toward Museum Island. Rooms are classically grand, the afternoon tea is an institution, and the front rooms look straight onto the Gate.</div>
+          <div class="page-p"><strong>Address:</strong> Unter den Linden 77, 10117 Berlin (Mitte). &nbsp;·&nbsp; <strong>From</strong> €420/night. &nbsp;·&nbsp; ★ 4.7</div>
+
+          <div class="page-section-label" style="margin-top:28px;">Also Great</div>
+          <div class="page-h2">Four more, by neighbourhood</div>
+          <div class="page-p">Berlin rewards staying in the district you actually want to explore — the city is large and spread out, and each quarter has its own character. Here are our favourites across the east, west, and centre.</div>
           <div class="page-cards">
             <div class="page-card">
-              <div class="page-card-img" style="background:#e8f0fe;">🎨</div>
+              <div class="page-card-img" style="background:#c08a5a;">🎸</div>
               <div class="page-card-body">
-                <div class="page-card-title">Native Rendering</div>
-                <div class="page-card-desc">Browser's own compositor handles layout, no JS screenshotting</div>
+                <div class="page-card-title">Michelberger Hotel</div>
+                <div class="page-card-desc">Friedrichshain · playful design hotel by Warschauer Str. From €145.</div>
               </div>
             </div>
             <div class="page-card">
-              <div class="page-card-img" style="background:#fce8e6;">⚡</div>
+              <div class="page-card-img" style="background:#4a9e8f;">🐒</div>
               <div class="page-card-body">
-                <div class="page-card-title">Low Latency</div>
-                <div class="page-card-desc">Paint events fire synchronously with DOM mutations</div>
+                <div class="page-card-title">25hours Hotel Bikini</div>
+                <div class="page-card-desc">Charlottenburg · "jungle" rooms over the Zoo, rooftop bar. From €190.</div>
               </div>
             </div>
             <div class="page-card">
-              <div class="page-card-img" style="background:#e6f4ea;">🖱</div>
+              <div class="page-card-img" style="background:#8a6db0;">🛁</div>
               <div class="page-card-body">
-                <div class="page-card-title">Hit Testing</div>
-                <div class="page-card-desc">UV coords map back to DOM elements via elementFromPoint</div>
+                <div class="page-card-title">Hotel Oderberger</div>
+                <div class="page-card-desc">Prenzlauer Berg · boutique stay in a restored bathhouse. From €165.</div>
               </div>
             </div>
           </div>
 
-          <div class="page-section-label" style="margin-top:28px;">Under The Hood</div>
-          <div class="page-h2">How HTMLTexture actually works</div>
-          <div class="page-p">At its core, <code style="background:#f0f0f0;padding:1px 4px;border-radius:3px;font-size:12px;">THREE.HTMLTexture</code> wraps a canvas element and hooks into its <code style="background:#f0f0f0;padding:1px 4px;border-radius:3px;font-size:12px;">onpaint</code> callback — a single-slot property that fires whenever the browser's layout engine decides the subtree needs re-rasterizing. When the callback fires, Three.js marks the texture as dirty and uploads the new bitmap to the GPU on the next render frame.</div>
-          <div class="page-p">One critical constraint: <code style="background:#f0f0f0;padding:1px 4px;border-radius:3px;font-size:12px;">onpaint</code> is a <strong>single-slot property</strong>, meaning only one listener can be registered per canvas. This is why every live window requires its own source canvas — sharing one canvas across multiple textures means only the last registered listener fires.</div>
+          <div class="page-section-label" style="margin-top:28px;">How to Choose</div>
+          <div class="page-h2">East or West?</div>
+          <div class="page-p">For nightlife and the start-up scene, base yourself in the east — Friedrichshain and Prenzlauer Berg put you among the cafés, galleries, and venues that define modern Berlin. For shopping, the opera, and easy airport connections, the west around Charlottenburg is calmer and greener, with the Tiergarten on your doorstep.</div>
+          <div class="page-p">Mitte, in the middle, is the safe all-rounder: walkable to the major sights, well connected by U-Bahn and S-Bahn, and close to both halves of the city. If it's a short trip and you want to see the landmarks, stay central and travel out for the evenings.</div>
 
-          <div class="page-h2">The multi-canvas architecture</div>
-          <div class="page-p">A production implementation would likely maintain a pool of off-screen source canvases, each rasterizing one window's DOM subtree. The visible WebGL canvas composites all of them into the final scene. Because each source canvas is independent, windows can animate, update content, and scroll without affecting one another.</div>
-          <div class="page-p">Depth ordering is handled entirely by mesh <code style="background:#f0f0f0;padding:1px 4px;border-radius:3px;font-size:12px;">position.z</code> values — no CSS z-index, no DOM reordering. Clicking a window moves it to the top of the stack by assigning it the highest z-slot; all other windows shift down by one slot to keep the range bounded.</div>
-
-          <div class="page-section-label" style="margin-top:28px;">Performance</div>
-          <div class="page-h2">What's fast, what's not</div>
-          <div class="page-p">Static windows are essentially free — the rasterized bitmap sits on the GPU and the render loop just draws it every frame with no CPU cost. Dynamic content (CSS transitions, animated text, live data) triggers repaints proportional to the canvas size. A 3440×1440 desktop chrome canvas repainting at 60fps is expensive; a 3440×39 menubar canvas is trivial.</div>
-          <div class="page-p">The practical rule: keep frequently-updating elements in small source canvases. Static chrome — wallpaper, dock, trash — can share a single large canvas that only repaints when explicitly requested (zone drag previews, for instance).</div>
-          <div class="page-cards">
-            <div class="page-card">
-              <div class="page-card-img" style="background:#fef9e7;">📐</div>
-              <div class="page-card-body">
-                <div class="page-card-title">Small canvas = fast</div>
-                <div class="page-card-desc">Menubar at 3440×39 repaints 55× cheaper than the full desktop</div>
-              </div>
-            </div>
-            <div class="page-card">
-              <div class="page-card-img" style="background:#f0f8ff;">🧱</div>
-              <div class="page-card-body">
-                <div class="page-card-title">Transform > layout</div>
-                <div class="page-card-desc">CSS transforms skip layout recalc; max-width changes do not</div>
-              </div>
-            </div>
-            <div class="page-card">
-              <div class="page-card-img" style="background:#f5f0ff;">🪟</div>
-              <div class="page-card-body">
-                <div class="page-card-title">One canvas per window</div>
-                <div class="page-card-desc">Enables independent live textures via the onpaint single-slot rule</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="page-section-label" style="margin-top:28px;">What's Next</div>
-          <div class="page-h2">The road to full interactivity</div>
-          <div class="page-p">The remaining challenge is routing input events back into the source canvas DOM. Because all pointer events land on the WebGL canvas, a raycaster must map screen coordinates to UV coordinates, then convert UV to window-local pixels, and finally dispatch synthetic events to the element under the cursor via <code style="background:#f0f0f0;padding:1px 4px;border-radius:3px;font-size:12px;">elementFromPoint</code>.</div>
-          <div class="page-p">Scrolling is already achievable by caching scrollable element references at init time and applying <code style="background:#f0f0f0;padding:1px 4px;border-radius:3px;font-size:12px;">scrollTop</code> deltas on wheel events. Hover states and clicks require the full synthetic event pipeline — expected to land in a future Chrome Canary build with improved <code style="background:#f0f0f0;padding:1px 4px;border-radius:3px;font-size:12px;">layoutsubtree</code> hit-testing support.</div>
+          <div class="page-section-label" style="margin-top:28px;">Getting Around</div>
+          <div class="page-h2">Trains, not taxis</div>
+          <div class="page-p">Berlin's public transport is excellent and a single ticket covers the U-Bahn, S-Bahn, trams, and buses. Most of the hotels above are within a few minutes' walk of a station, so you rarely need a car. The BVG app handles tickets and routing; an AB zone day pass covers everywhere you're likely to go.</div>
+          <div class="page-p">From BER airport, the FEX express and the S9 reach the city centre in well under an hour. If you're arriving by rail, Berlin Hauptbahnhof is the hub, with onward connections to every district on this list.</div>
         </div>
       </div>
     </div>
