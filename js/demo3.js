@@ -182,23 +182,27 @@ document.querySelectorAll('#win-finder .finder-file').forEach(file => {
    They start hidden (.win-hidden) so the opening frame matches Demo 2. */
 const sideWindows = document.querySelectorAll('#win-finder, #win-browser');
 function revealSideWindows() { sideWindows.forEach(w => w.classList.remove('win-hidden')); }
+function hideSideWindows()   { sideWindows.forEach(w => w.classList.add('win-hidden')); }   // .win-hidden fades (opacity transition)
 function toggleSideWindows() { sideWindows.forEach(w => w.classList.toggle('win-hidden')); }
 
-/* ── Stage 3: bulk-add the hotels ──
-   The hotel rows are pre-authored in the scrapbook but hidden (.stage-hidden). Reveal
-   them all at once, flat, and wire each row (click → open its authored panel). A brief
-   flash makes the batch "land". They already have data-panel + data-mx/my (for the map). */
+/* ── Hotels ──
+   Hotel rows are pre-authored in the scrapbook but hidden (.stage-hidden). revealHotel
+   un-hides one (flat, at the list bottom, wired + flashed). The Adlon is revealed by
+   dragging it from the web page (see startSelectionDrag); bulkAddHotels (Stage 3 / Space)
+   reveals whatever hotels remain hidden. Rows carry data-panel + data-mx/my (for the map). */
+function revealHotel(row) {
+  if (!row || !row.classList.contains('stage-hidden')) return;
+  row.classList.remove('stage-hidden');
+  row.classList.add('revealed');           // .fb-item is display:none until .revealed
+  fbItems.appendChild(row);                // move to the BOTTOM of the list
+  row.addEventListener('click', () => openItem(row));
+  row.addEventListener('mouseenter', () => showPreview(row));
+  row.addEventListener('mouseleave', hidePreview);
+  row.classList.add('snippet-new');
+  setTimeout(() => row.classList.remove('snippet-new'), 800);
+}
 function bulkAddHotels() {
-  document.querySelectorAll('#fb-items .hotel-row.stage-hidden').forEach(row => {
-    row.classList.remove('stage-hidden');
-    row.classList.add('revealed');         // .fb-item is display:none until .revealed
-    fbItems.appendChild(row);              // move to the BOTTOM of the list
-    row.addEventListener('click', () => openItem(row));
-    row.addEventListener('mouseenter', () => showPreview(row));
-    row.addEventListener('mouseleave', hidePreview);
-    row.classList.add('snippet-new');
-    setTimeout(() => row.classList.remove('snippet-new'), 800);
-  });
+  document.querySelectorAll('#fb-items .hotel-row.stage-hidden').forEach(revealHotel);
 }
 
 /* ── Stage 4: categorize — collect the hotels into a "Hotels" folder ──
@@ -223,14 +227,20 @@ function categorize() {
   hotelsFolder.appendChild(folderRow);
 
   fbItems.appendChild(hotelsFolder);
-  hotelRows.forEach(row => {            // re-home the flat rows into the folder
-    row.classList.add('fb-nested');
+  folderRow.classList.add('cat-folder-in');   // folder header slides in
+
+  // Re-home the flat rows into the folder; each fades+settles with a short stagger
+  // (no flying across the list — the calm version).
+  hotelRows.forEach((row, i) => {
+    row.classList.add('fb-nested', 'cat-settle');
+    row.style.animationDelay = (0.12 + i * 0.09) + 's';
     hotelsFolder.appendChild(row);
+    row.addEventListener('animationend', () => {
+      row.classList.remove('cat-settle');
+      row.style.animationDelay = '';
+    }, { once: true });
   });
 
-  // Folder flash + clicking it selects + opens the chatbox.
-  hotelsFolder.classList.add('snippet-new');
-  setTimeout(() => hotelsFolder.classList.remove('snippet-new'), 800);
   folderRow.addEventListener('click', () => selectHotelsFolder(folderRow));
 }
 
@@ -245,12 +255,14 @@ function categorize() {
      2  reveal the two side windows                   — stages[0]
      3  bulk-add the hotels                            — bulkAddHotels (stages[1])
      4  categorize: hotels collect into a Hotels folder — categorize (stages[2])
-     5  (map is triggered by the chatbox, not Space)               */
+     5  (map is triggered by the chatbox, not Space)
+     6  fade the side windows back out (sources no longer needed) — stages[3]   */
 let stageIdx = 0;
 const stages = [
   revealSideWindows,                       // → Stage 2
   bulkAddHotels,                           // → Stage 3
   categorize,                              // → Stage 4
+  hideSideWindows,                         // → after the map: sources fade away
 ];
 function advanceStage() {
   if (stageIdx >= stages.length) return;   // nothing scripted left
@@ -360,6 +372,11 @@ function startSelectionDrag(e, provenance, cut) {
   const capturedHTML = capture.innerHTML;
   const capturedText = sel.toString().trim();
 
+  // If the selection sits inside a [data-hotel] block (e.g. the web page's Editor's Pick
+  // for the Adlon), this drag yields that AUTHORED hotel row (panel + map pin), not a clip.
+  const hotelHost = range.startContainer.parentElement?.closest('[data-hotel]');
+  const hotelPanelId = hotelHost?.getAttribute('data-hotel') || null;
+
   // Full-size floating copy of the selected text
   const chip = document.createElement('div');
   chip.className = 'drag-snippet';
@@ -371,7 +388,11 @@ function startSelectionDrag(e, provenance, cut) {
 
   runChipDrag(e, chip, startStage.x - selTopLeft.x, startStage.y - selTopLeft.y, () => {
     if (!capturedText) return;
-    createSnippet(capturedHTML, capturedText, provenance);
+    if (hotelPanelId) {                      // a hotel drag → reveal its authored row
+      revealHotel(document.querySelector(`.hotel-row[data-panel="${hotelPanelId}"]`));
+    } else {
+      createSnippet(capturedHTML, capturedText, provenance);
+    }
     if (cut) range.deleteContents();        // doc = cut; web page = copy (leave the text)
     window.getSelection().removeAllRanges(); // either way, clear the highlight on drop
   });
@@ -576,9 +597,9 @@ function showChatbox(anchorRow) {
   chatbox = document.createElement('div');
   chatbox.className = 'scrap-chat';
   chatbox.innerHTML =
-    `<div class="scrap-chat-head">Ask about “Hotels”<span class="scrap-chat-close">×</span></div>
+    `<div class="scrap-chat-head">Prompt for “Hotels”<span class="scrap-chat-close">×</span></div>
      <div class="scrap-chat-log"></div>
-     <input class="scrap-chat-input" type="text" placeholder="Put these all on a map…" />`;
+     <input class="scrap-chat-input" type="text" />`;
   stage.appendChild(chatbox);
 
   // Position in stage-px so it pops right AT the clicked folder row (overlapping the

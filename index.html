@@ -413,10 +413,15 @@
           <div class="page-hero-cta">See the List</div>
         </div>
         <div class="page-body">
-          <div class="page-section-label">Editor's Pick</div>
-          <div class="page-h2">Hotel Adlon Kempinski</div>
-          <div class="page-p">If you only know one Berlin hotel, it's this one. The Adlon has stood beside the Brandenburg Gate since 1907, and the location is unbeatable — you step out of the lobby and onto Pariser Platz, with Unter den Linden stretching east toward Museum Island. Rooms are classically grand, the afternoon tea is an institution, and the front rooms look straight onto the Gate.</div>
-          <div class="page-p"><strong>Address:</strong> Unter den Linden 77, 10117 Berlin (Mitte). &nbsp;·&nbsp; <strong>From</strong> €420/night. &nbsp;·&nbsp; ★ 4.7</div>
+          <!-- Editor's Pick is wrapped so a text-drag from within it is recognized as
+               the Adlon hotel (data-hotel → reveals the authored hotel row + map pin),
+               not a generic clip. See startSelectionDrag in js/demo3.js. -->
+          <div data-hotel="panel-hotel-adlon">
+            <div class="page-section-label">Editor's Pick</div>
+            <div class="page-h2">Hotel Adlon Kempinski</div>
+            <div class="page-p">If you only know one Berlin hotel, it's this one. The Adlon has stood beside the Brandenburg Gate since 1907, and the location is unbeatable — you step out of the lobby and onto Pariser Platz, with Unter den Linden stretching east toward Museum Island. Rooms are classically grand, the afternoon tea is an institution, and the front rooms look straight onto the Gate.</div>
+            <div class="page-p"><strong>Address:</strong> Unter den Linden 77, 10117 Berlin (Mitte). &nbsp;·&nbsp; <strong>From</strong> €420/night. &nbsp;·&nbsp; ★ 4.7</div>
+          </div>
 
           <div class="page-section-label" style="margin-top:28px;">Also Great</div>
           <div class="page-h2">Four more, by neighbourhood</div>

@@ -346,6 +346,20 @@
    until JS drops .stage-hidden. Wins over .fb-item.revealed via !important. */
 .fb-item.stage-hidden { display: none !important; }
 
+/* ── Stage-4 categorize animation (the calm version) ──
+   The folder header slides in; each nested hotel row fades + settles into place with a
+   short stagger (animation-delay set per-row in JS). No flying across the list. */
+.fb-folder.cat-folder-in { animation: cat-folder-in 0.3s cubic-bezier(.22,.61,.36,1) both; }
+@keyframes cat-folder-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fb-item.cat-settle { animation: cat-settle 0.34s cubic-bezier(.22,.61,.36,1) both; }
+@keyframes cat-settle {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 /* ── HOTEL PANEL ── (a hotel "gathered from the web", shown when its row is clicked) */
 .hotel-panel { background: #fff; overflow-y: auto; flex-direction: column; }
 .hotel-panel .hotel-photo {
