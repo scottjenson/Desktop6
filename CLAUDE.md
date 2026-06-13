@@ -14,12 +14,13 @@ explicit approval.**
 ---
 
 ## 🎯 What this demo shows
-A word-processor-style **viewer** with an attached, Obsidian-like **file browser**
-that slides out from its left. The story: a side panel that **bridges the clipboard
-and the filesystem** — content "dragged" out of a document becomes a real file you can
-preview inline and open beside the document. Items appear in the browser, you hover
-them for a preview card, and clicking one opens it as a **new tab** in the viewer
-(the document is always Tab 1 and is never lost).
+A word-processor-style **viewer** with an attached **Scrapbook** panel (Obsidian-like)
+that slides out from its left. The story: a side panel that **bridges the clipboard and
+the filesystem** — content dragged out of a document, the Finder, or a web page becomes a
+real item you can open beside the document. Items accrue FLAT and messy; later the system
+organizes them into folders, and a folder can be acted on (e.g. "put these on a map").
+Clicking a scrapbook row shows that item in the viewer (no tabs — one panel at a time).
+The arc is a 5-stage script driven by Spacebar; see the Status section + `plan.md`.
 
 **Crucial framing — staged, but the drag IS real now.** The clipboard/filesystem
 *story* is narrated, but the holding-area interactions have since been built for real
@@ -98,9 +99,10 @@ css/demo3.css         NEW: parity rect, file browser, hover cards (flagged off),
                       doc-narrowing overrides.
 js/stage.js           letterbox scale on load + resize.
 js/grid-bg.js         WebGL background grid (Demo 2's shader ported; replaces the old PNG).
-js/demo3.js           gestures: slide browser, sidebar-row select (no tabs), window
-                      dragging, finder select, [w] side-window toggle, and the drag-in
-                      factories (finder file / text clip / web page).
+js/demo3.js           the Spacebar stage sequencer (windows → hotels → categorize),
+                      sidebar-row select (no tabs), window dragging, finder select,
+                      drag-in factories (finder file / text clip / web page), and the
+                      Hotels-folder chatbox → Hotel Map. See plan.md for the arc.
 icons/                dock + file-row icons (copied from Demo 2).
 (No assets/ dir — the old 8 MB wallpaper PNG was replaced by the js/grid-bg.js shader.)
 ```
@@ -112,12 +114,11 @@ the parity rect and never moves.** The browser is positioned to the **left** of 
 viewer's position — so parity holds even while the browser is out. Hover cards float
 further left, out into open desktop space (impossible in Demo 2's clipped meshes).
 
-### Tabs
-Tab 1 (the document) is authored in HTML and always present (no close button). Clicking
-a file row appends a tab for its panel (`data-panel` links row → panel id) and activates
-it; clicking a row whose tab exists re-activates it; `×` closes a tab and falls back to
-the document. All panels are static, pre-authored markup; switching tabs just toggles
-`.active`.
+### Viewer selection (NO tabs — the tab bar was removed)
+The viewer shows exactly ONE panel at a time = the highlighted scrapbook row. Clicking a
+row (`data-panel` links row → panel id) toggles `.active` on its panel + the row, and
+retitles the window. The document row is selected on open. Panels are static pre-authored
+markup; dragged-in items get panels built at runtime (snippet / file / web / map).
 
 ---
 
@@ -134,44 +135,53 @@ the document. All panels are static, pre-authored markup; switching tabs just to
 ---
 
 ## 📍 Status & phased plan
-**DONE:**
-- Attached file browser sliding out from the viewer's left (keys below).
-- The browser STARTS with only `Design Proposal.doc`. Everything else is dragged in;
-  folders (`Snippets`, `Web pages`) are created lazily on first drop. Files stay above
-  folders in the tree. (The old one-at-a-time `[↓]` reveal was removed.)
-- NO TAB BAR. The viewer shows exactly one panel = the highlighted sidebar row
-  (`.fb-item.active`, the light-blue pill). Clicking a row swaps the main view and
-  retitles the window; the document row is selected on open.
-- Three drop sources, one shared custom pointer-drag (NOT native DnD — see Learning #4):
-  - drag a Finder icon → a top-level file row. Spreadsheets (`.xlsx/.csv/...`) clone the
-    authored `#panel-budget` view; other files get a "no preview" placeholder.
-  - drag a text selection from the DOC → a Snippet (a CUT — text leaves the doc).
-  - drag a text selection from the BROWSER article → a Snippet (a COPY — page is
-    read-only, text stays). Either way the selection deselects on a successful drop.
-  - drag the browser's URL pill → a `Web pages` entry whose panel MIRRORS the page
-    (a clone of `.browser-content` — real local DOM, not a screenshot).
-- Spreadsheet panel dressed up with a toolbar + formula bar so it reads as an app.
+> The side panel is now the **SCRAPBOOK**. The demo is a 5-stage scripted arc driven by
+> **Spacebar** (presentation-clicker). See `plan.md` for the full arc + per-chunk detail;
+> this is the summary. Berlin is the through-theme (talk location): the doc is a Berlin
+> tech-corridor study, the web page is "Great Hotels in Berlin", the gathered items are
+> Berlin hotels.
+
+**DONE — the Scrapbook arc (stages driven by Spacebar; see `js/demo3.js` `stages[]`):**
+- **Stage 1** — opens with only `Tech Corridor Study.doc` in the scrapbook; side windows
+  hidden (Demo-2 opening frame preserved). Manual drags are live from here on.
+- **Stage 2** (Space) — reveal the two side windows (Finder + Browser).
+- **Stage 3** (Space) — `bulkAddHotels`: 4 pre-authored Berlin hotels appear FLAT at the
+  bottom of the list (icon = 📝, they're web items). "Messy by design."
+- **Stage 4** (Space) — `categorize`: the 4 hotels collect into an expanded **Hotels**
+  `.fb-group`. Only hotels get foldered for now; the doc + any dragged items stay flat.
+- **Stage 5** (chatbox, NOT Space) — click the Hotels folder → a chatbox pops at the row
+  (toggle; dismiss via × / Escape / click-outside). Any text + Enter → ~1.1s "thinking" →
+  a top-level **Hotel Map** item (stylized Berlin map, red pin per hotel from
+  `data-mx/data-my`). Idempotent — one map ever.
+- **NO TAB BAR.** The viewer shows exactly one panel = the highlighted sidebar row
+  (`.fb-item.active`). Clicking a row swaps the view + retitles the window. `.fb-item` is
+  `display:none` until `.revealed` (or inside a revealed `.fb-group`).
+- **Manual drags (live throughout), one shared custom pointer-drag (NOT native DnD — see
+  Learning #4); all land FLAT as a top-level row:**
+  - Finder icon → a file row. Spreadsheets (`.xlsx/.csv/...`) clone `#panel-budget`;
+    others get a "no preview" placeholder.
+  - DOC text selection → a Snippet (a CUT — text leaves the doc).
+  - BROWSER article text → a Snippet (a COPY — page is read-only). Both deselect on drop.
+  - browser URL pill → a web-page row whose panel MIRRORS `.browser-content` (real DOM).
 - Background grid is a live WebGL shader port (no PNG) — see Learnings.
-- Two side windows (Finder left, Browser right of the viewer), inlined into index.html
-  and styled by css/windows.css. Hidden on open (`.win-hidden`) so the Demo-2 tab-switch
-  frame is unchanged; GPU-scaled 1.18× to match the viewer's readability scale. All three
-  windows drag by their titlebar; Finder rows click-to-select (dark-blue pill on the
-  filename only); browser article is selectable text.
-- Hover preview cards exist but are behind a flag (`HOVER_PREVIEW_ENABLED = false` in
-  demo3.js) — felt redundant with one-click open; likely to be repurposed later as a
-  provenance/relationship channel (highlight an item's source / related items on hover).
+- Two side windows (Finder left, Browser right), inlined into index.html, styled by
+  css/windows.css. Hidden on open; GPU-scaled 1.18× for readability. All three windows
+  drag by titlebar; Finder rows click-to-select (dark-blue pill on the filename only).
+- Hover preview cards exist but are behind a flag (`HOVER_PREVIEW_ENABLED = false`) —
+  felt redundant with one-click open; likely repurposed later as a provenance channel.
 
 **Current gesture map (js/demo3.js):**
-- `[←]` show file browser · `[→]` hide it (NOT a toggle — left always shows, right always hides).
-- `[w]` toggle the two side windows (Finder/Browser) in/out.
-- click a sidebar row → show it in the viewer (no tabs) · drag any titlebar → move that
-  window (raises it to front) · click a Finder file → select it.
-- drag into the open browser: a Finder icon, a doc/browser text selection, or the
-  browser URL pill → creates the corresponding item (see DONE).
+- **`[Space]`** — advance the scripted stage (windows → hotels → categorize). No-op past
+  the end; the map is chatbox-driven, not Space.
+- `[←]` show scrapbook · `[→]` hide it (NOT a toggle). `[w]` toggle the side windows.
+- click a sidebar row → show it in the viewer · click the Hotels folder → chatbox ·
+  drag any titlebar → move that window · click a Finder file → select it.
+- drag into the open scrapbook: Finder icon / doc or browser text / browser URL.
 
 **Deferred / backlog (only if asked):**
 - The Demo-2 "align" key (lives in Demo 2, not here — see above).
-- Image panel currently uses a CSS placeholder; swap in a real image if desired.
+- Sorting NON-hotel items into folders during categorize (only hotels foldered for now).
+- Map is schematic Berlin, not geographically exact (could be made more literal).
 
 ---
 
