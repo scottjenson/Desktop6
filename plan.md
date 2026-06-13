@@ -112,6 +112,12 @@ the *scripted* additions; the user can still drag things in by hand whenever.
       hidden via `.stage-hidden`. `bulkAddHotels` (stages[1]) reveals them flat + wires
       click/hover. Rows carry data-mx/data-my normalized pin coords for the Stage-5 map.
       Hotel panels + `.hotel-panel` CSS authored. Verified.
-- [ ] Chunk 4 — Stage 4 categorize (folders appear; hotels→Hotels folder, others→folders).
-      Add `categorize` as stages[2].
-- [ ] Chunk 5 — Stage 5 chatbox + map (click Hotels folder → chatbox → map item).
+- [x] Chunk 4 — Stage 4 categorize. `categorize` (stages[2]) builds a "Hotels"
+      .fb-group and re-homes the 4 flat hotel rows into it (nested, EXPANDED), with a
+      flash. Only hotels get foldered for now; doc + dragged items stay flat. Clicking
+      the folder row → selectHotelsFolder (highlight + chatbox). Verified.
+- [x] Chunk 5 — Stage 5 chatbox + map. Clicking the Hotels folder floats `.scrap-chat`
+      beside it; Enter → ~1.1s "thinking" beat → `createMapItem`: a top-level "🗺️ Hotel
+      Map" row + `.map-panel` (stylized Berlin: land/Spree/road-grid + a red 📍 pin per
+      hotel from data-mx/data-my), auto-selected. Any text fires it. Verified (map renders
+      with 4 placed pins; chatbox positioned on-stage).

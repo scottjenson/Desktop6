@@ -191,12 +191,47 @@ function toggleSideWindows() { sideWindows.forEach(w => w.classList.toggle('win-
 function bulkAddHotels() {
   document.querySelectorAll('#fb-items .hotel-row.stage-hidden').forEach(row => {
     row.classList.remove('stage-hidden');
+    row.classList.add('revealed');         // .fb-item is display:none until .revealed
+    fbItems.appendChild(row);              // move to the BOTTOM of the list
     row.addEventListener('click', () => openItem(row));
     row.addEventListener('mouseenter', () => showPreview(row));
     row.addEventListener('mouseleave', hidePreview);
     row.classList.add('snippet-new');
     setTimeout(() => row.classList.remove('snippet-new'), 800);
   });
+}
+
+/* ── Stage 4: categorize — collect the hotels into a "Hotels" folder ──
+   Folders appear for the FIRST time here (everything was flat until now). We build a
+   .fb-group, move the 4 flat hotel rows into it (nested + expanded), and animate. The
+   doc and any hand-dragged items stay flat at top level — only the hotels have a clear
+   category for now. Clicking the folder row selects it and floats the chatbox (Stage 5). */
+let hotelsFolder = null;
+function categorize() {
+  const hotelRows = document.querySelectorAll('#fb-items .hotel-row');
+  if (!hotelRows.length || hotelsFolder) return;
+
+  // The expandable group: a folder row + the nested hotel rows, shown expanded.
+  hotelsFolder = document.createElement('div');
+  hotelsFolder.className = 'fb-group revealed';
+  hotelsFolder.id = 'fb-hotels-group';
+  const folderRow = document.createElement('div');
+  folderRow.className = 'fb-folder';
+  folderRow.innerHTML =
+    `<img class="fb-folder-icon-img" src="icons/folder.png" alt="">
+     <span class="fb-name">Hotels</span>`;
+  hotelsFolder.appendChild(folderRow);
+
+  fbItems.appendChild(hotelsFolder);
+  hotelRows.forEach(row => {            // re-home the flat rows into the folder
+    row.classList.add('fb-nested');
+    hotelsFolder.appendChild(row);
+  });
+
+  // Folder flash + clicking it selects + opens the chatbox.
+  hotelsFolder.classList.add('snippet-new');
+  setTimeout(() => hotelsFolder.classList.remove('snippet-new'), 800);
+  folderRow.addEventListener('click', () => selectHotelsFolder(folderRow));
 }
 
 /* ── Stage sequencer (the demo's spine) ──
@@ -208,14 +243,14 @@ function bulkAddHotels() {
    Stages (see plan.md):
      1  opening state (doc only, side windows hidden) — no beat, it's how we load
      2  reveal the two side windows                   — stages[0]
-     3  bulk-add the hotels                            — TODO (chunk 3)
-     4  categorize: flat rows animate into folders     — TODO (chunk 4)
+     3  bulk-add the hotels                            — bulkAddHotels (stages[1])
+     4  categorize: hotels collect into a Hotels folder — categorize (stages[2])
      5  (map is triggered by the chatbox, not Space)               */
 let stageIdx = 0;
 const stages = [
   revealSideWindows,                       // → Stage 2
   bulkAddHotels,                           // → Stage 3
-  // TODO chunk 4: categorize,
+  categorize,                              // → Stage 4
 ];
 function advanceStage() {
   if (stageIdx >= stages.length) return;   // nothing scripted left
@@ -378,7 +413,7 @@ document.querySelectorAll('#win-finder .finder-file').forEach(file => {
   });
 });
 
-/* ── Drag the BROWSER URL → a "Web pages" folder entry ──
+/* ── Drag the BROWSER URL → a top-level web-page row ──
    Drags the address-bar pill; on drop, captures the whole page (a CLONE of the
    browser's authored .browser-content — it's all local DOM, so the viewer mirrors
    the page, not a screenshot). */
@@ -503,4 +538,130 @@ function createWebPageItem(domain, path, pageHTML) {
   item.dataset.kind = 'webpage';
   item.innerHTML = `<span class="fb-ico">🌐</span><span class="fb-name">${domain}</span>`;
   addRow(item);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   STAGE 5 — act on the folder: a chatbox over the Hotels folder, "Put these on a
+   map" → a new top-level "Hotel Map" scrapbook item showing a stylized Berlin map
+   with a red pin per hotel (positions from each hotel row's data-mx/data-my).
+   The chatbox is scripted, not real NLP — any text fires it (the presenter drives).
+   ══════════════════════════════════════════════════════════════════════════ */
+
+// Click the Hotels folder → highlight it and TOGGLE the chatbox (clicking again, or
+// the ×, Escape, or clicking elsewhere, dismisses it — so it can't stack/re-fire).
+function selectHotelsFolder(folderRow) {
+  document.querySelectorAll('.fb-item, .fb-folder').forEach(el => el.classList.remove('active'));
+  folderRow.classList.add('active');
+  if (chatbox) hideChatbox();              // already open → second click closes it
+  else showChatbox(folderRow);
+}
+
+let chatbox = null;
+function hideChatbox() {
+  if (!chatbox) return;
+  chatbox.remove();
+  chatbox = null;
+  document.removeEventListener('keydown', onChatEscape, true);
+  document.removeEventListener('mousedown', onChatOutside, true);
+}
+function onChatEscape(e) { if (e.key === 'Escape') { e.stopPropagation(); hideChatbox(); } }
+function onChatOutside(e) {
+  // a mousedown outside the chatbox (and not on the Hotels folder, which toggles) closes it
+  if (chatbox && !e.target.closest('.scrap-chat') && !e.target.closest('#fb-hotels-group .fb-folder')) {
+    hideChatbox();
+  }
+}
+
+function showChatbox(anchorRow) {
+  chatbox = document.createElement('div');
+  chatbox.className = 'scrap-chat';
+  chatbox.innerHTML =
+    `<div class="scrap-chat-head">Ask about “Hotels”<span class="scrap-chat-close">×</span></div>
+     <div class="scrap-chat-log"></div>
+     <input class="scrap-chat-input" type="text" placeholder="Put these all on a map…" />`;
+  stage.appendChild(chatbox);
+
+  // Position in stage-px so it pops right AT the clicked folder row (overlapping the
+  // scrapbook's right edge, spilling toward the viewer) — i.e. where the eye already is.
+  const stageScaleV = stageScale();
+  const stageRect = stage.getBoundingClientRect();
+  const rowRect = anchorRow.getBoundingClientRect();
+  const rowX = (rowRect.left   - stageRect.left) / stageScaleV;   // folder row, stage-px
+  const rowBottom = (rowRect.bottom - stageRect.top) / stageScaleV;
+  chatbox.style.left = (rowX + 60) + 'px';     // nudge right so it overlaps the row/edge
+  chatbox.style.top  = (rowBottom + 8) + 'px'; // just below the row
+
+  chatbox.querySelector('.scrap-chat-close').addEventListener('click', hideChatbox);
+
+  const input = chatbox.querySelector('.scrap-chat-input');
+  input.focus();
+  input.addEventListener('keydown', (e) => {
+    e.stopPropagation();                     // don't let Space/arrows hit the stage handler
+    if (e.key === 'Enter' && input.value.trim()) runChatPrompt(input.value.trim());
+  });
+
+  // Dismiss on Escape or an outside click (capture phase so we see it first).
+  document.addEventListener('keydown', onChatEscape, true);
+  document.addEventListener('mousedown', onChatOutside, true);
+}
+
+// "Thinking" beat, then build the map and dismiss the chatbox.
+function runChatPrompt(text) {
+  const log = chatbox.querySelector('.scrap-chat-log');
+  const input = chatbox.querySelector('.scrap-chat-input');
+  log.innerHTML = `<div class="scrap-chat-you">${text}</div>
+                   <div class="scrap-chat-bot">Working on it<span class="dots">…</span></div>`;
+  input.disabled = true;
+  setTimeout(() => { createMapItem(); hideChatbox(); }, 1100);
+}
+
+// New top-level "Hotel Map" item + a .map-panel with a red pin per hotel.
+// Idempotent: only one map ever — a repeat prompt just re-opens the existing one.
+let mapItem = null;
+function createMapItem() {
+  if (mapItem) { openItem(mapItem); return; }
+  itemSeq++;
+  const panelId = `panel-map-${itemSeq}`;
+
+  // One pin per hotel, placed by its normalized data-mx/data-my (0–1) on the map.
+  const pins = [...document.querySelectorAll('#fb-items .hotel-row')].map(row => {
+    const name = row.querySelector('.fb-name').textContent;
+    const mx = parseFloat(row.dataset.mx), my = parseFloat(row.dataset.my);
+    return `<div class="map-pin" style="left:${mx * 100}%; top:${my * 100}%;">
+              <span class="map-pin-dot">📍</span><span class="map-pin-label">${name}</span>
+            </div>`;
+  }).join('');
+
+  const panel = document.createElement('div');
+  panel.className = 'viewer-panel map-panel';
+  panel.id = panelId;
+  panel.innerHTML =
+    `<div class="map-canvas">
+       <div class="map-roads"></div>
+       <div class="map-park map-tiergarten"></div>
+       <div class="map-park map-volkspark"></div>
+       <div class="map-block map-block-a"></div>
+       <div class="map-block map-block-b"></div>
+       <div class="map-water"></div>
+       <div class="map-water map-canal"></div>
+       <div class="map-label map-label-river">Spree</div>
+       <div class="map-label map-label-park">Tiergarten</div>
+       <div class="map-label map-label-mitte">Mitte</div>
+       <div class="map-label map-label-fhain">Friedrichshain</div>
+       ${pins}
+     </div>`;
+  panelsWrap.appendChild(panel);
+
+  const item = document.createElement('div');
+  item.className = 'fb-item revealed';
+  item.dataset.panel = panelId;
+  item.dataset.kind = 'map';
+  item.innerHTML = `<span class="fb-ico">🗺️</span><span class="fb-name">Hotel Map</span>`;
+  // Top-level: insert before the first folder group so it stays above the Hotels folder.
+  const firstGroup = fbItems.querySelector('.fb-group');
+  if (firstGroup) fbItems.insertBefore(item, firstGroup); else fbItems.appendChild(item);
+  wireItem(item);
+
+  mapItem = item;                            // remember it so we never make a second
+  openItem(item);                            // select + show it immediately
 }
