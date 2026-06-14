@@ -428,39 +428,42 @@
    Layers (back→front): land + road grid, parks, district blocks, water (Spree routed
    across the TOP so it never bisects the centre), labels, then the pins. Pin coords
    (data-mx/data-my on each hotel row) are chosen to sit on LAND, clear of the water. */
-.map-panel { background: #c7d9c2; }   /* off-map green so edges read as countryside */
+.map-panel { background: #aadaa0; }   /* off-map green so edges read as countryside */
 .map-canvas {
   position: relative; flex: 1;
-  background: #ece8df;                /* land */
+  background: #f2efe6;                /* warm map land (Google-ish) */
   overflow: hidden;
 }
-/* Faint road grid so it reads as a city, not a blank field. */
+/* Fine residential street grid behind the yellow arterials. */
 .map-roads {
   position: absolute; inset: 0;
   background-image:
-    repeating-linear-gradient(0deg,  rgba(255,255,255,0.6) 0 2px, transparent 2px 78px),
-    repeating-linear-gradient(90deg, rgba(255,255,255,0.6) 0 2px, transparent 2px 104px),
-    repeating-linear-gradient(42deg, rgba(0,0,0,0.045) 0 1px, transparent 1px 130px),
-    repeating-linear-gradient(-20deg, rgba(0,0,0,0.04) 0 1px, transparent 1px 150px);
+    repeating-linear-gradient(0deg,  rgba(255,255,255,0.9) 0 2px, transparent 2px 64px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.9) 0 2px, transparent 2px 84px),
+    repeating-linear-gradient(28deg, rgba(255,255,255,0.55) 0 1px, transparent 1px 110px);
 }
 /* Green parks. */
-.map-park { position: absolute; background: #bcd6a8; border-radius: 14px; }
+.map-park { position: absolute; background: #b6dca0; border-radius: 18px; }
 .map-tiergarten { left: 10%; top: 44%; width: 30%; height: 18%; transform: rotate(-4deg); }
 .map-volkspark  { left: 70%; top: 22%; width: 16%; height: 13%; border-radius: 40% 30% 35% 45%; }
-/* Subtle district fills for texture. */
-.map-block { position: absolute; border-radius: 10px; }
-.map-block-a { left: 42%; top: 40%; width: 22%; height: 20%; background: rgba(214,196,160,0.55); }  /* Mitte */
-.map-block-b { left: 64%; top: 58%; width: 24%; height: 22%; background: rgba(200,186,206,0.45); }  /* Friedrichshain */
-/* The Spree: a soft band across the TOP, plus a short canal branch in the SE. */
+/* Classic yellow arterials, each with a white casing (box-shadow) so it reads as a road.
+   Long thin bars rotated across the canvas; transform-origin left so width = length. */
+.map-road {
+  position: absolute; height: 7px; border-radius: 4px;
+  background: #f7d774;                                  /* map yellow */
+  box-shadow: 0 0 0 2px #fff;                           /* white casing */
+  transform-origin: left center;
+}
+.map-road-1 { left: -6%;  top: 38%; width: 80%;  transform: rotate(6deg); }    /* main E–W */
+.map-road-2 { left: 30%;  top: 8%;  width: 70%;  transform: rotate(58deg); }   /* NW–SE */
+.map-road-3 { left: 4%;   top: 78%; width: 95%;  transform: rotate(-12deg); }  /* lower cross-town */
+.map-road-4 { left: 52%;  top: -4%; width: 90%;  transform: rotate(74deg); height: 5px; } /* N–S */
+/* The Spree: a soft water band across the TOP. */
 .map-water {
   position: absolute; left: -12%; right: -12%; top: 24%; height: 58px;
   background: linear-gradient(180deg,#a9cee2,#8fbcd8);
   transform: rotate(-7deg);
   box-shadow: 0 0 0 1px rgba(110,150,180,0.35);
-}
-.map-canal {
-  left: auto; right: 8%; top: 60%; width: 46px; height: 34%;
-  transform: rotate(14deg); border-radius: 0 0 20px 20px;
 }
 .map-label {
   position: absolute; font-size: 13px; letter-spacing: 0.06em; pointer-events: none;

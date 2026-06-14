@@ -254,15 +254,15 @@ function categorize() {
      1  opening state (doc only, side windows hidden) — no beat, it's how we load
      2  reveal the two side windows                   — stages[0]
      3  bulk-add the hotels                            — bulkAddHotels (stages[1])
-     4  categorize: hotels collect into a Hotels folder — categorize (stages[2])
-     5  (map is triggered by the chatbox, not Space)
-     6  fade the side windows back out (sources no longer needed) — stages[3]   */
+     4  fade the side windows back out (sources gathered) — hideSideWindows (stages[2])
+     5  categorize: hotels collect into a Hotels folder — categorize (stages[3])
+     6  (map is triggered by the chatbox, not Space)               */
 let stageIdx = 0;
 const stages = [
-  revealSideWindows,                       // → Stage 2
-  bulkAddHotels,                           // → Stage 3
-  categorize,                              // → Stage 4
-  hideSideWindows,                         // → after the map: sources fade away
+  revealSideWindows,                       // → reveal sources
+  bulkAddHotels,                           // → add the 3 hotels
+  hideSideWindows,                         // → sources gathered: fade them out
+  categorize,                              // → then organize into the Hotels folder
 ];
 function advanceStage() {
   if (stageIdx >= stages.length) return;   // nothing scripted left
@@ -661,10 +661,12 @@ function createMapItem() {
        <div class="map-roads"></div>
        <div class="map-park map-tiergarten"></div>
        <div class="map-park map-volkspark"></div>
-       <div class="map-block map-block-a"></div>
-       <div class="map-block map-block-b"></div>
        <div class="map-water"></div>
-       <div class="map-water map-canal"></div>
+       <!-- Classic yellow arterials (white-cased) over the fine grid → reads as a map. -->
+       <div class="map-road map-road-1"></div>
+       <div class="map-road map-road-2"></div>
+       <div class="map-road map-road-3"></div>
+       <div class="map-road map-road-4"></div>
        <div class="map-label map-label-river">Spree</div>
        <div class="map-label map-label-park">Tiergarten</div>
        <div class="map-label map-label-mitte">Mitte</div>

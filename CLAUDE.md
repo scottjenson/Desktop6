@@ -20,7 +20,7 @@ the filesystem** — content dragged out of a document, the Finder, or a web pag
 real item you can open beside the document. Items accrue FLAT and messy; later the system
 organizes them into folders, and a folder can be acted on (e.g. "put these on a map").
 Clicking a scrapbook row shows that item in the viewer (no tabs — one panel at a time).
-The arc is a 5-stage script driven by Spacebar; see the Status section + `plan.md`.
+The arc is a staged script driven by Spacebar; see the Status section below for the beats.
 
 **Crucial framing — staged, but the drag IS real now.** The clipboard/filesystem
 *story* is narrated, but the holding-area interactions have since been built for real
@@ -102,7 +102,7 @@ js/grid-bg.js         WebGL background grid (Demo 2's shader ported; replaces th
 js/demo3.js           the Spacebar stage sequencer (windows → hotels → categorize),
                       sidebar-row select (no tabs), window dragging, finder select,
                       drag-in factories (finder file / text clip / web page), and the
-                      Hotels-folder chatbox → Hotel Map. See plan.md for the arc.
+                      Hotels-folder chatbox → Hotel Map. See Status section for the arc.
 icons/                dock + file-row icons (copied from Demo 2).
 (No assets/ dir — the old 8 MB wallpaper PNG was replaced by the js/grid-bg.js shader.)
 ```
@@ -135,23 +135,32 @@ markup; dragged-in items get panels built at runtime (snippet / file / web / map
 ---
 
 ## 📍 Status & phased plan
-> The side panel is now the **SCRAPBOOK**. The demo is a 5-stage scripted arc driven by
-> **Spacebar** (presentation-clicker). See `plan.md` for the full arc + per-chunk detail;
-> this is the summary. Berlin is the through-theme (talk location): the doc is a Berlin
+> The side panel is now the **SCRAPBOOK**. The demo is a staged scripted arc driven by
+> **Spacebar** (presentation-clicker); the full beat-by-beat list is in DONE below.
+> Berlin is the through-theme (talk location): the doc is a Berlin
 > tech-corridor study, the web page is "Great Hotels in Berlin", the gathered items are
 > Berlin hotels.
 
 **DONE — the Scrapbook arc (stages driven by Spacebar; see `js/demo3.js` `stages[]`):**
+  Beats are the entries of `stages[]`, in order: `revealSideWindows`, `bulkAddHotels`,
+  `hideSideWindows`, `categorize`. (The map is chatbox-driven, not a Space beat.)
 - **Stage 1** — opens with only `Tech Corridor Study.doc` in the scrapbook; side windows
   hidden (Demo-2 opening frame preserved). Manual drags are live from here on.
-- **Stage 2** (Space) — reveal the two side windows (Finder + Browser).
-- **Stage 3** (Space) — `bulkAddHotels`: 4 pre-authored Berlin hotels appear FLAT at the
-  bottom of the list (icon = 📝, they're web items). "Messy by design."
-- **Stage 4** (Space) — `categorize`: the 4 hotels collect into an expanded **Hotels**
-  `.fb-group`. Only hotels get foldered for now; the doc + any dragged items stay flat.
-- **Stage 5** (chatbox, NOT Space) — click the Hotels folder → a chatbox pops at the row
-  (toggle; dismiss via × / Escape / click-outside). Any text + Enter → ~1.1s "thinking" →
-  a top-level **Hotel Map** item (stylized Berlin map, red pin per hotel from
+- **Stage 2** (Space) — `revealSideWindows`: reveal Finder + Browser (the sources).
+- Manually drag in the first hotel: the web page's Editor's Pick (Adlon) is wrapped in
+  `[data-hotel]`, so a text-drag from it reveals the AUTHORED Adlon hotel row (panel +
+  map pin), not a generic clip.
+- **Stage 3** (Space) — `bulkAddHotels`: reveal the REMAINING hotels (the 3 not yet
+  added), FLAT at the bottom (icon = 📝, they're web items). "Messy by design."
+- **Stage 4** (Space) — `hideSideWindows`: the sources are gathered, so fade Finder +
+  Browser back out (reuses the `.win-hidden` opacity transition).
+- **Stage 5** (Space) — `categorize`: the 4 hotels collect into an expanded **Hotels**
+  `.fb-group`, animated (folder slides in, rows fade+settle with a stagger). Only hotels
+  get foldered for now; the doc + any dragged items stay flat.
+- **Stage 6** (chatbox, NOT Space) — click the Hotels folder → a chatbox ("Prompt for
+  'Hotels'") pops at the row (toggle; dismiss via × / Escape / click-outside). Any text +
+  Enter → ~1.1s "thinking" → a top-level **Hotel Map** item (stylized Berlin map: warm
+  land, fine street grid, yellow arterials, Spree, parks, labels, a red pin per hotel from
   `data-mx/data-my`). Idempotent — one map ever.
 - **NO TAB BAR.** The viewer shows exactly one panel = the highlighted sidebar row
   (`.fb-item.active`). Clicking a row swaps the view + retitles the window. `.fb-item` is
@@ -171,17 +180,12 @@ markup; dragged-in items get panels built at runtime (snippet / file / web / map
   felt redundant with one-click open; likely repurposed later as a provenance channel.
 
 **Current gesture map (js/demo3.js):**
-- **`[Space]`** — advance the scripted stage (windows → hotels → categorize). No-op past
-  the end; the map is chatbox-driven, not Space.
+- **`[Space]`** — advance the scripted stage: reveal windows → add hotels → hide windows
+  → categorize. No-op past the end; the map is chatbox-driven, not Space.
 - `[←]` show scrapbook · `[→]` hide it (NOT a toggle). `[w]` toggle the side windows.
 - click a sidebar row → show it in the viewer · click the Hotels folder → chatbox ·
   drag any titlebar → move that window · click a Finder file → select it.
 - drag into the open scrapbook: Finder icon / doc or browser text / browser URL.
-
-**Deferred / backlog (only if asked):**
-- The Demo-2 "align" key (lives in Demo 2, not here — see above).
-- Sorting NON-hotel items into folders during categorize (only hotels foldered for now).
-- Map is schematic Berlin, not geographically exact (could be made more literal).
 
 ---
 
@@ -253,4 +257,3 @@ No build step. Serve over HTTP (module/script + asset fetches need it):
 ```
 python3 -m http.server 8000      # then open http://localhost:8000
 ```
-Use Chrome (Canary not required — there's no experimental API here, unlike Demo 2).
