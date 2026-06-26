@@ -38,7 +38,7 @@
   width: var(--wp-w);
   height: var(--wp-h);
   z-index: 10;
-  overflow: visible;   /* let #filebrowser (positioned to the left) escape the clip */
+  overflow: visible;   /* let #scrapbook (positioned to the left) escape the clip */
   border-radius: 12px; /* corner shape for the inner content (clipped by .viewer-clip) */
   transform-origin: center center;
   transition: transform 0.6s cubic-bezier(0.5, 0, 0.2, 1), opacity 0.5s ease;
@@ -91,9 +91,9 @@
   z-index: 2;          /* above the file browser, so the browser slides out from behind */
 }
 
-/* File browser — a visual child tucked to the LEFT of the viewer, inset top & bottom.
+/* Scrapbook panel — a visual child tucked to the LEFT of the viewer, inset top & bottom.
    Slides out from BEHIND the viewer (lower z-index), no fade. */
-#filebrowser {
+#scrapbook {
   position: absolute;
   top: var(--fb-inset);
   bottom: var(--fb-inset);
@@ -112,7 +112,7 @@
   pointer-events: none;
   transition: transform 0.42s cubic-bezier(.22,.61,.36,1);
 }
-#filebrowser.open {
+#scrapbook.open {
   transform: translateX(0);
   pointer-events: auto;
 }
@@ -338,7 +338,7 @@
 }
 
 /* Drop-zone highlight on the file browser while dragging anything over it */
-#filebrowser.drop-target {
+#scrapbook.drop-target {
   outline: 3px dashed var(--accent);
   outline-offset: -6px;
   background: #eef4ff;

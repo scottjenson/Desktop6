@@ -25,9 +25,9 @@ The arc is a staged script driven by Spacebar; see the Status section below for 
 **Crucial framing — staged, but the drag IS real now.** The clipboard/filesystem
 *story* is narrated, but the holding-area interactions have since been built for real
 (custom pointer-drag, not native DnD — see Learnings). The live interactivity is:
-- `[←]`/`[→]` slide the file browser out / in
+- `[←]`/`[→]` slide the scrapbook out / in
 - `[w]` toggle the two side windows (Finder / Browser)
-- drag into the open browser: a Finder icon → a file row; a doc/browser text selection
+- drag into the open scrapbook: a Finder icon → a file row; a doc/browser text selection
   → a Snippet (doc = cut, browser = copy); the browser URL → a mirrored Web page
 - click a sidebar row → show it in the viewer (no tabs); the highlight is the selection
 
@@ -46,7 +46,7 @@ static layers are **pixel-identical**:
 - Same **pill menubar**, same **dock**, same **trash**, same **wallpaper**, same
   **window frame** (`.os-window`, traffic lights, titlebar).
 - Demo 3 **opens where Demo 2 leaves off**: menubar already in its collapsed *pill*
-  state, a single word-processor window centered, no file browser yet.
+  state, a single word-processor window centered, no scrapbook yet.
 
 **Discipline:** the desktop chrome (`css/desktop.css`, the menubar/dock/trash markup)
 is **lifted from Demo 2 and must stay in visual lock-step.** If you find yourself
@@ -94,25 +94,27 @@ css/wordprocessor.css canonical .wp-* document styles (uses --win-* vars from wi
                       custom props resolve at use-time so link order is fine).
 css/windows.css       chrome for the two side windows only — Finder + Browser, plus the
                       shared --win-* vars. (Obsidian/Music/duplicate .wp-* were stripped.)
-css/demo3.css         NEW: parity rect, file browser, hover cards (flagged off), panel
+css/demo3.css         NEW: parity rect, scrapbook panel (`#filebrowser`), hover cards (flagged off), panel
                       types (snippet/file/web/sheet), side-window placement/scale,
                       doc-narrowing overrides.
 js/stage.js           letterbox scale on load + resize.
 js/grid-bg.js         WebGL background grid (Demo 2's shader ported; replaces the old PNG).
 js/demo3.js           the Spacebar stage sequencer (windows → hotels → categorize),
                       sidebar-row select (no tabs), window dragging, finder select,
-                      drag-in factories (finder file / text clip / web page), and the
-                      Hotels-folder chatbox → Hotel Map. See Status section for the arc.
-icons/                dock + file-row icons (copied from Demo 2).
+                      drag-in factories (finder file / text clip / web page), the
+                      Hotels-folder chatbox → Hotel Map, and minimize/restore (click the
+                      traffic-lights → desktop icon → click to re-open). See Status.
+icons/                dock + file-row icons (copied from Demo 2) + scrapbook.png (the
+                      collapsed desktop-file icon).
 (No assets/ dir — the old 8 MB wallpaper PNG was replaced by the js/grid-bg.js shader.)
 ```
 
 ### The attached unit
-The file browser and viewer share one frame (Obsidian-style). The **viewer is pinned to
-the parity rect and never moves.** The browser is positioned to the **left** of it
-(`right:100%`) and slides in via `transform`; opening it does **not** disturb the
-viewer's position — so parity holds even while the browser is out. Hover cards float
-further left, out into open desktop space (impossible in Demo 2's clipped meshes).
+The scrapbook panel (`#filebrowser`) and viewer share one frame (Obsidian-style). The
+**viewer is pinned to the parity rect and never moves.** The scrapbook is positioned to
+the **left** of it (`right:100%`) and slides in via `transform`; opening it does **not**
+disturb the viewer's position — so parity holds even while the scrapbook is out. Hover
+cards float further left, out into open desktop space (impossible in Demo 2's clipped meshes).
 
 ### Viewer selection (NO tabs — the tab bar was removed)
 The viewer shows exactly ONE panel at a time = the highlighted scrapbook row. Clicking a
@@ -126,7 +128,7 @@ markup; dragged-in items get panels built at runtime (snippet / file / web / map
 1. **Do NOT** re-introduce Three.js / WebGL / `layoutsubtree`. Demo 3 is plain DOM by design.
 2. **Do NOT** edit the lifted chrome (`desktop.css` menubar/dock/trash, the frame) in
    ways that change its appearance — it must match Demo 2 pixel-for-pixel.
-3. **Do NOT** move the viewer off the parity rect, or make the browser push it.
+3. **Do NOT** move the viewer off the parity rect, or make the scrapbook push it.
 4. **Do NOT** build real drag/drop, clipboard, or file I/O. Items are pre-authored; the
    bridge is narrated, not coded.
 5. **Do NOT** add a second coordinate system — author inside `#stage` in desktop-px.
@@ -149,7 +151,9 @@ markup; dragged-in items get panels built at runtime (snippet / file / web / map
 - **Stage 2** (Space) — `revealSideWindows`: reveal Finder + Browser (the sources).
 - Manually drag in the first hotel: the web page's Editor's Pick (Adlon) is wrapped in
   `[data-hotel]`, so a text-drag from it reveals the AUTHORED Adlon hotel row (panel +
-  map pin), not a generic clip.
+  map pin), not a generic clip. The hotel panels read as plain CLIPPED TEXT (reuse the
+  `.snippet-panel` structure) — name + blurb + address + phone + a quoted review, so the
+  map step (Stage 6) has real per-hotel data. The styled `.hotel-panel` card was dropped.
 - **Stage 3** (Space) — `bulkAddHotels`: reveal the REMAINING hotels (the 3 not yet
   added), FLAT at the bottom (icon = 📝, they're web items). "Messy by design."
 - **Stage 4** (Space) — `hideSideWindows`: the sources are gathered, so fade Finder +
@@ -162,6 +166,15 @@ markup; dragged-in items get panels built at runtime (snippet / file / web / map
   Enter → ~1.1s "thinking" → a top-level **Hotel Map** item (stylized Berlin map: warm
   land, fine street grid, yellow arterials, Spree, parks, labels, a red pin per hotel from
   `data-mx/data-my`). Idempotent — one map ever.
+- **Minimize-to-icon (CLICK, NOT Space)** — `minimizeToIcon` collapses the whole unit
+  into a single desktop file icon (`#desktop-file`, `icons/scrapbook.png`). Triggered by
+  **clicking the viewer's traffic-lights** (mousedown hit-test on `.win-titlebar`, since
+  the dots are tiny under `#stage` scale and a synthetic click misses them). It was moved
+  OFF Spacebar — too easy to hit mid-demo. The icon shows immediately as the window
+  shrinks onto it (no dead beat). **Click the icon → `restoreFromIcon`**: the window
+  scales back up first, then (on its `transform` `transitionend`) the scrapbook panel
+  slides out — a sequenced reverse, not simultaneous. The titlebar drag handler already
+  bails on traffic-light mousedowns, so dragging the window still works.
 - **NO TAB BAR.** The viewer shows exactly one panel = the highlighted sidebar row
   (`.fb-item.active`). Clicking a row swaps the view + retitles the window. `.fb-item` is
   `display:none` until `.revealed` (or inside a revealed `.fb-group`).
@@ -185,17 +198,19 @@ markup; dragged-in items get panels built at runtime (snippet / file / web / map
 - `[←]` show scrapbook · `[→]` hide it (NOT a toggle). `[w]` toggle the side windows.
 - click a sidebar row → show it in the viewer · click the Hotels folder → chatbox ·
   drag any titlebar → move that window · click a Finder file → select it.
+- click the viewer's traffic-lights → minimize the unit to a desktop icon ·
+  click the desktop icon → restore (window grows, then the panel slides out).
 - drag into the open scrapbook: Finder icon / doc or browser text / browser URL.
 
 ---
 
 ## 🧠 Learnings (hard-won — don't rediscover these)
 
-**1. The file browser MUST stay a child of `#viewer`, escaping via `right:100%`.**
+**1. The scrapbook panel (`#filebrowser`) MUST stay a child of `#viewer`, escaping via `right:100%`.**
 It's `position:absolute; right:100%` so its right edge sits on the viewer's left edge
-and it slides via `transform`. `#viewer` is `overflow:visible` so the browser isn't
+and it slides via `transform`. `#viewer` is `overflow:visible` so the scrapbook isn't
 clipped; the viewer's OWN rounded-corner clipping is restored by an inner `.viewer-clip`
-wrapper (titlebar+tabs+panels live inside it, the browser does NOT). Pulling the browser
+wrapper (titlebar+tabs+panels live inside it, the scrapbook does NOT). Pulling the scrapbook
 OUT of `#viewer` and re-anchoring to stage-px broke positioning AND "moves with the
 window" — don't. The original scaffold already had the right structure.
 

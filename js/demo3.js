@@ -14,7 +14,7 @@
    its panel and activates it; clicking a row whose tab exists re-activates it.
    Close (×) removes the tab and falls back to the document; the doc tab has no ×. */
 
-const filebrowser = document.getElementById('filebrowser');
+const filebrowser = document.getElementById('scrapbook');
 const panelsWrap  = document.getElementById('viewer-panels');
 const viewerTitle = document.getElementById('viewer-title');
 
@@ -61,7 +61,7 @@ document.querySelectorAll('#fb-items .fb-item').forEach(item => {
 const HOVER_PREVIEW_ENABLED = false;
 
 const stage = document.getElementById('stage');
-const browserEl = document.getElementById('filebrowser');
+const browserEl = document.getElementById('scrapbook');
 const viewer = document.getElementById('viewer');
 
 const previewCard = document.createElement('div');
@@ -105,7 +105,7 @@ function showPreview(item) {
 }
 
 function positionPreview(item, cardH) {
-  // Work in stage-px. #filebrowser is positioned relative to #viewer; compute its
+  // Work in stage-px. #scrapbook is positioned relative to #viewer; compute its
   // left edge in stage coordinates so the card sits just to its left.
   const browserLeftPx = parseFloat(getComputedStyle(viewer).left)        // viewer x
                       - parseFloat(getComputedStyle(browserEl).width);   // minus browser width
