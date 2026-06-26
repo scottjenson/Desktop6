@@ -127,10 +127,161 @@ function hidePreview() {
   previewCard.classList.remove('visible');
 }
 
-document.querySelectorAll('#fb-items .fb-item').forEach(item => {
-  item.addEventListener('mouseenter', () => showPreview(item));
-  item.addEventListener('mouseleave', hidePreview);
-});
+/* ── Provenance on hover ("where did this come from?") ──
+   Hovering a scrapbook row reminds you of its origin: it briefly reveals the source
+   window (if currently hidden) and paints a translucent red box over the exact origin
+   element(s). One generic engine; each row supplies a descriptor via provenanceFor().
+
+   Robustness: anchors are STABLE elements, not saved rects — a browser/finder clip
+   highlights its authored source BLOCK; the doc clip highlights a marker span left in
+   place (collapsed display:none) that "pops back" red on hover (see startSelectionDrag).
+   Only windows we reveal here get re-hidden on leave; an already-open window is left
+   untouched (so this can't disrupt a later demo state). */
+
+// A small pool of red highlight boxes (the map needs up to 4 at once).
+const provBoxes = [];
+function getProvBox(i) {
+  if (!provBoxes[i]) {
+    const b = document.createElement('div');
+    b.className = 'prov-box';
+    stage.appendChild(b);
+    provBoxes[i] = b;
+  }
+  return provBoxes[i];
+}
+
+// Describe a row's origin: { window, targets[], clip }. Returns null if no provenance
+// (e.g. the original document, which came from nowhere).
+function provenanceFor(row) {
+  const kind = row.dataset.kind;
+  if (kind === 'doc') return null;                       // the doc is the origin
+
+  if (kind === 'hotel') {                                // source = its page block
+    const block = document.querySelector(`[data-hotel="${row.dataset.panel}"]`);
+    return { window: 'win-browser', targets: block ? [block] : [] };
+  }
+  if (kind === 'map') {                                  // source = the 4 hotel rows
+    return { window: null, targets: [...document.querySelectorAll('#fb-items .hotel-row')] };
+  }
+  if (kind === 'file') {                                 // source = its finder cell
+    const cell = row._provCell;
+    return { window: 'win-finder', targets: cell ? [cell] : [] };
+  }
+  if (kind === 'text') {                                 // doc/browser clip
+    if (row.dataset.provClip) {                          // doc cut → marker span in place
+      const span = document.querySelector(`.clip-origin[data-clip-id="${row.dataset.provClip}"]`);
+      // The span highlights itself via .show — no separate box needed (targets empty).
+      return { window: null, targets: [], clip: span };
+    }
+    const block = row._provBlock;                        // browser copy → source block
+    return { window: 'win-browser', targets: block ? [block] : [] };
+  }
+  return null;
+}
+
+// Paint `box` over `el`, in stage-px. If `clipEl` is given, the box is CLAMPED to that
+// element's rect (so a highlight over content inside a window can't bleed past the
+// window's frame). Returns false (and hides the box) if the target is fully outside.
+function paintBox(box, el, clipEl) {
+  const stageRect = stage.getBoundingClientRect();
+  const s = stageScale();
+  let r = el.getBoundingClientRect();
+
+  if (clipEl) {
+    const c = clipEl.getBoundingClientRect();
+    const left = Math.max(r.left, c.left), top = Math.max(r.top, c.top);
+    const right = Math.min(r.right, c.right), bottom = Math.min(r.bottom, c.bottom);
+    if (right <= left || bottom <= top) { box.classList.remove('visible'); return false; }
+    r = { left, top, width: right - left, height: bottom - top };
+  }
+
+  box.style.left   = ((r.left - stageRect.left) / s) + 'px';
+  box.style.top    = ((r.top  - stageRect.top)  / s) + 'px';
+  box.style.width  = (r.width  / s) + 'px';
+  box.style.height = (r.height / s) + 'px';
+  box.classList.add('visible');
+  return true;
+}
+
+// Provenance-hover starts OFF so the presenter can explain items first, then enable it
+// ("History") with [h]. Toggling is silent except for a brief toast (see toggleHistory).
+let HISTORY_ENABLED = false;
+
+function showProvenance(row) {
+  if (!HISTORY_ENABLED) return;
+  const prov = provenanceFor(row);
+  if (!prov) return;
+
+  // Reveal the source window only if it's currently hidden; remember so we re-hide it.
+  // A freshly-revealed window animates up from translateY(24px), so we must paint the
+  // boxes AFTER that transition settles (else the rect is captured too low — bug #2).
+  row._provOpened = null;
+  let revealed = false;
+  let win = null;
+  if (prov.window) {
+    win = document.getElementById(prov.window);
+    if (win && win.classList.contains('win-hidden')) {
+      win.classList.remove('win-hidden');
+      row._provOpened = win;
+      revealed = true;
+    }
+  }
+
+  // Doc clip: show the doc in the viewer (remember what was active, restore on leave),
+  // then pop the collapsed marker span back into place (red) and scroll it into view.
+  if (prov.clip) {
+    const active = document.querySelector('.viewer-panel.active');
+    if (active && active.id !== 'panel-doc') {
+      row._provPrevPanel = active.id;
+      document.getElementById('panel-doc')?.classList.add('active');
+      active.classList.remove('active');
+    }
+    prov.clip.classList.add('show');
+    prov.clip.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }
+
+  // Paint a red box over each target. Clamp browser/finder targets to their window's
+  // visible content rect so the highlight never bleeds past the frame (bug #3).
+  const clipEl = win ? (win.querySelector('.browser-content, .finder-main') || win) : null;
+  const paint = () => prov.targets.forEach((el, i) => paintBox(getProvBox(i), el, clipEl));
+  if (revealed) setTimeout(paint, 380);      // after the reveal transition (0.35s) settles
+  else requestAnimationFrame(paint);
+}
+
+function hideProvenance(row) {
+  provBoxes.forEach(b => b.classList.remove('visible'));
+  if (row._provOpened) { row._provOpened.classList.add('win-hidden'); row._provOpened = null; }
+  if (row._provPrevPanel) {                   // restore the panel the doc-hover replaced
+    document.getElementById('panel-doc')?.classList.remove('active');
+    document.getElementById(row._provPrevPanel)?.classList.add('active');
+    row._provPrevPanel = null;
+  }
+  const span = row.dataset.provClip &&
+    document.querySelector(`.clip-origin[data-clip-id="${row.dataset.provClip}"]`);
+  if (span) span.classList.remove('show');
+}
+
+// Wire hover-provenance onto a row (used by both authored rows and runtime factories).
+function wireProvenance(row) {
+  row.addEventListener('mouseenter', () => showProvenance(row));
+  row.addEventListener('mouseleave', () => hideProvenance(row));
+}
+
+document.querySelectorAll('#fb-items .fb-item').forEach(wireProvenance);
+
+// [h] toggles "History" (provenance-hover) on/off, with a brief toast so the presenter
+// knows it registered. Starts OFF.
+const historyToast = document.createElement('div');
+historyToast.className = 'history-toast';
+stage.appendChild(historyToast);
+let historyToastTimer = null;
+function toggleHistory() {
+  HISTORY_ENABLED = !HISTORY_ENABLED;
+  historyToast.textContent = HISTORY_ENABLED ? 'History on' : 'History off';
+  historyToast.classList.add('visible');
+  clearTimeout(historyToastTimer);
+  historyToastTimer = setTimeout(() => historyToast.classList.remove('visible'), 1100);
+}
 
 /* ── Window drag (titlebar → move the window) ──
    Shared by #viewer and the two side windows. Reads the layout left/top (the side
@@ -320,6 +471,7 @@ window.addEventListener('keydown', (e) => {
   else if (e.key === 'ArrowRight') { e.preventDefault(); hideBrowser(); }
   else if (e.key === ' ')          { e.preventDefault(); advanceStage(); }
   else if (e.key === 'w' || e.key === 'W') { e.preventDefault(); toggleSideWindows(); }
+  else if (e.key === 'h' || e.key === 'H') { e.preventDefault(); toggleHistory(); }
 });
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -431,15 +583,29 @@ function startSelectionDrag(e, provenance, cut) {
   const startStage = clientToStage(e.clientX, e.clientY);
   const selTopLeft = clientToStage(minL, minT);
 
+  // For a browser COPY, remember the authored source block (for the provenance hover).
+  const srcBlock = cut ? null
+    : range.commonAncestorContainer.parentElement?.closest('.page-card, [data-hotel], .page-body');
+
   runChipDrag(e, chip, startStage.x - selTopLeft.x, startStage.y - selTopLeft.y, () => {
     if (!capturedText) return;
     if (hotelPanelId) {                      // a hotel drag → reveal its authored row
       revealHotel(document.querySelector(`.hotel-row[data-panel="${hotelPanelId}"]`));
+    } else if (cut) {
+      // DOC CUT: don't delete — wrap the original text in a marker span left IN PLACE
+      // but collapsed (display:none), so the text "leaves" the doc yet its location
+      // survives for the provenance hover (the snippet row points at this clip id).
+      const clipId = `clip-${++itemSeq}`;
+      const marker = document.createElement('span');
+      marker.className = 'clip-origin';
+      marker.dataset.clipId = clipId;
+      marker.appendChild(range.extractContents());
+      range.insertNode(marker);
+      createSnippet(capturedHTML, capturedText, provenance, { clipId });
     } else {
-      createSnippet(capturedHTML, capturedText, provenance);
+      createSnippet(capturedHTML, capturedText, provenance, { srcBlock });
     }
-    if (cut) range.deleteContents();        // doc = cut; web page = copy (leave the text)
-    window.getSelection().removeAllRanges(); // either way, clear the highlight on drop
+    window.getSelection().removeAllRanges(); // clear the highlight on drop
   });
 }
 
@@ -475,7 +641,7 @@ document.querySelectorAll('#win-finder .finder-file').forEach(file => {
     const cellTopLeft = clientToStage(r.left, r.top);
 
     runChipDrag(e, chip, startStage.x - cellTopLeft.x, startStage.y - cellTopLeft.y,
-      () => createFileItem(name, icon));
+      () => createFileItem(name, icon, file));     // `file` = the source finder cell
   });
 });
 
@@ -508,11 +674,10 @@ if (urlPill && browserContent) {
 
 /* ── Item factories ── */
 
-// Wire a freshly-created row: click to open, hover to preview, brief land-flash.
+// Wire a freshly-created row: click to open, hover to show provenance, brief land-flash.
 function wireItem(item) {
   item.addEventListener('click', () => openItem(item));
-  item.addEventListener('mouseenter', () => showPreview(item));
-  item.addEventListener('mouseleave', hidePreview);
+  wireProvenance(item);
   item.classList.add('snippet-new');
   setTimeout(() => item.classList.remove('snippet-new'), 800);
 }
@@ -525,8 +690,10 @@ function addRow(item) {
   wireItem(item);
 }
 
-// Text clip (doc/browser) → a snippet panel + a top-level row.
-function createSnippet(html, text, provenance) {
+// Text clip (doc/browser) → a snippet panel + a top-level row. `origin` carries the
+// provenance anchor: { clipId } for a doc cut (a marker span left in the doc) or
+// { srcBlock } for a browser copy (the authored page block it came from).
+function createSnippet(html, text, provenance, origin = {}) {
   itemSeq++;
   const panelId = `panel-snippet-${itemSeq}`;
   const words = text.split(/\s+/).slice(0, 3).join('-').replace(/[^\w-]/g, '').toLowerCase();
@@ -546,6 +713,8 @@ function createSnippet(html, text, provenance) {
   item.className = 'fb-item revealed';
   item.dataset.panel = panelId;
   item.dataset.kind = 'text';
+  if (origin.clipId) item.dataset.provClip = origin.clipId;   // doc cut → marker span
+  if (origin.srcBlock) item._provBlock = origin.srcBlock;     // browser copy → page block
   item.innerHTML = `<span class="fb-ico">📝</span><span class="fb-name">${name}</span>`;
   addRow(item);
 }
@@ -554,7 +723,7 @@ function createSnippet(html, text, provenance) {
 // budget panel (same toolbar/formula-bar/grid view); everything else gets a simple
 // "no preview" placeholder.
 const SPREADSHEET_RE = /\.(xlsx|xls|csv|numbers)$/i;
-function createFileItem(name, icon) {
+function createFileItem(name, icon, srcCell) {
   itemSeq++;
   const panelId = `panel-file-${itemSeq}`;
 
@@ -579,6 +748,7 @@ function createFileItem(name, icon) {
   item.className = 'fb-item revealed';
   item.dataset.panel = panelId;
   item.dataset.kind = 'file';
+  item._provCell = srcCell;                  // the finder cell it was dragged from
   item.innerHTML = `<span class="fb-ico">${icon}</span><span class="fb-name">${name}</span>`;
   addRow(item);
 }
