@@ -227,54 +227,76 @@
         </div>
       </div>
 
-      <!-- STAGE 3 hotel panels (shown when their scrapbook row is clicked). -->
-      <div class="viewer-panel hotel-panel" id="panel-hotel-adlon">
-        <div class="hotel-photo" style="background:linear-gradient(135deg,#6b7a99,#2f3a52);">🏛️</div>
-        <div class="hotel-body">
-          <h1 class="hotel-name">Hotel Adlon Kempinski</h1>
-          <div class="hotel-loc">Mitte · Unter den Linden, by the Brandenburg Gate</div>
-          <div class="hotel-price">€420 <span>/ night</span></div>
-          <p class="hotel-blurb">Berlin's grande dame, steps from the Brandenburg Gate and Pariser Platz. Marble lobby, a famed afternoon tea, and rooms overlooking the boulevard. Splurge option — saved for the gala night.</p>
-          <div class="hotel-tags"><span>★ 4.7</span><span>Spa</span><span>Central</span></div>
+      <!-- STAGE 3 hotel panels — these read as plain CLIPPED TEXT from the Time Out
+           page (same snippet-panel structure as a dragged browser clip), not styled
+           hotel cards. The row stays .hotel-row/data-kind="hotel" so categorize + the
+           map still work; only the panel preview changed. -->
+      <div class="viewer-panel snippet-panel" id="panel-hotel-adlon">
+        <div class="snippet-body">
+          <div class="snippet-provenance">Clipped from Time Out — Berlin Hotels</div>
+          <div class="snippet-content">
+            <p><strong>Hotel Adlon Kempinski</strong></p>
+            <p>If you only know one Berlin hotel, it's this one. The Adlon has stood beside the Brandenburg Gate since 1907, and the location is unbeatable — you step out of the lobby and onto Pariser Platz, with Unter den Linden stretching east toward Museum Island. Rooms are classically grand, the afternoon tea is an institution, and the front rooms look straight onto the Gate.</p>
+            <p><strong>Address:</strong> Unter den Linden 77, 10117 Berlin (Mitte)<br>
+               <strong>Phone:</strong> +49 30 22610<br>
+               <strong>From</strong> €420/night</p>
+            <p><strong>Review (★ 4.7):</strong> "Old-world grandeur done right. Worth a front-facing room for the view of the Gate — you won't get closer. Service was flawless and the afternoon tea lived up to the legend."</p>
+          </div>
         </div>
       </div>
 
-      <div class="viewer-panel hotel-panel" id="panel-hotel-michelberger">
-        <div class="hotel-photo" style="background:linear-gradient(135deg,#c08a5a,#7a4a2a);">🎸</div>
-        <div class="hotel-body">
-          <h1 class="hotel-name">Michelberger Hotel</h1>
-          <div class="hotel-loc">Friedrichshain · across from Warschauer Straße</div>
-          <div class="hotel-price">€145 <span>/ night</span></div>
-          <p class="hotel-blurb">Playful, design-forward, and very Berlin — a former factory turned hotel with a leafy courtyard, a great bar, and the U1 line right outside for getting across town. Walkable to the river and the clubs.</p>
-          <div class="hotel-tags"><span>★ 4.5</span><span>Design</span><span>Nightlife</span></div>
+      <div class="viewer-panel snippet-panel" id="panel-hotel-michelberger">
+        <div class="snippet-body">
+          <div class="snippet-provenance">Clipped from Time Out — Berlin Hotels</div>
+          <div class="snippet-content">
+            <p><strong>Michelberger Hotel</strong></p>
+            <p>Playful, design-forward, and very Berlin — a former factory turned hotel with a leafy courtyard, a great bar, and the U1 line right outside. Walkable to the river and the Friedrichshain clubs.</p>
+            <p><strong>Address:</strong> Warschauer Str. 39–40, 10243 Berlin (Friedrichshain)<br>
+               <strong>Phone:</strong> +49 30 29778590<br>
+               <strong>From</strong> €145/night</p>
+            <p><strong>Review (★ 4.5):</strong> "Quirky in the best way — the courtyard bar is a scene and the staff are genuinely fun. Rooms are compact but full of character. Perfect base for a night out in the east."</p>
+          </div>
         </div>
       </div>
 
-      <div class="viewer-panel hotel-panel" id="panel-hotel-25hours">
-        <div class="hotel-photo" style="background:linear-gradient(135deg,#4a9e8f,#1f5e54);">🐒</div>
-        <div class="hotel-body">
-          <h1 class="hotel-name">25hours Hotel Bikini Berlin</h1>
-          <div class="hotel-loc">Charlottenburg · overlooking the Zoo & Tiergarten</div>
-          <div class="hotel-price">€190 <span>/ night</span></div>
-          <p class="hotel-blurb">West Berlin with a view — the "jungle" rooms look straight into the zoo, and the Monkey Bar on the roof has the best sunset over the Gedächtniskirche. Handy for the conference venue.</p>
-          <div class="hotel-tags"><span>★ 4.6</span><span>Rooftop</span><span>Views</span></div>
+      <div class="viewer-panel snippet-panel" id="panel-hotel-25hours">
+        <div class="snippet-body">
+          <div class="snippet-provenance">Clipped from Time Out — Berlin Hotels</div>
+          <div class="snippet-content">
+            <p><strong>25hours Hotel Bikini Berlin</strong></p>
+            <p>West Berlin with a view — the "jungle" rooms look straight into the zoo, and the Monkey Bar on the roof has the best sunset over the Gedächtniskirche. Handy for the conference venue.</p>
+            <p><strong>Address:</strong> Budapester Str. 40, 10787 Berlin (Charlottenburg)<br>
+               <strong>Phone:</strong> +49 30 1202210<br>
+               <strong>From</strong> €190/night</p>
+            <p><strong>Review (★ 4.6):</strong> "The rooftop bar alone is worth the stay. Ask for a zoo-facing room — waking up to the Tiergarten is unreal. A short walk to KaDeWe and the Ku'damm shops."</p>
+          </div>
         </div>
       </div>
 
-      <div class="viewer-panel hotel-panel" id="panel-hotel-oderberger">
-        <div class="hotel-photo" style="background:linear-gradient(135deg,#8a6db0,#4a2f7a);">🛁</div>
-        <div class="hotel-body">
-          <h1 class="hotel-name">Hotel Oderberger</h1>
-          <div class="hotel-loc">Prenzlauer Berg · Oderberger Straße</div>
-          <div class="hotel-price">€165 <span>/ night</span></div>
-          <p class="hotel-blurb">A boutique stay built into a restored 19th-century public bathhouse — you can swim in the original pool hall. Quiet, tree-lined neighbourhood full of cafés, an easy tram ride from Mitte.</p>
-          <div class="hotel-tags"><span>★ 4.6</span><span>Historic</span><span>Pool</span></div>
+      <div class="viewer-panel snippet-panel" id="panel-hotel-oderberger">
+        <div class="snippet-body">
+          <div class="snippet-provenance">Clipped from Time Out — Berlin Hotels</div>
+          <div class="snippet-content">
+            <p><strong>Hotel Oderberger</strong></p>
+            <p>A boutique stay built into a restored 19th-century public bathhouse — you can swim in the original pool hall. Quiet, tree-lined neighbourhood full of cafés, an easy tram ride from Mitte.</p>
+            <p><strong>Address:</strong> Oderberger Str. 57, 10435 Berlin (Prenzlauer Berg)<br>
+               <strong>Phone:</strong> +49 30 780089760<br>
+               <strong>From</strong> €165/night</p>
+            <p><strong>Review (★ 4.6):</strong> "Swimming in that restored Victorian pool hall is a once-in-a-trip experience. The neighbourhood is calm and full of good coffee. Rooms are tasteful and quiet — a lovely escape from the centre."</p>
+          </div>
         </div>
       </div>
 
     </div>
     </div><!-- /viewer-clip -->
   </div><!-- /viewer -->
+
+  <!-- ── COLLAPSED DESKTOP ICON ── the final beat: the whole scrapbook unit shrinks
+       into a single Finder-style file icon sitting on the desktop (js/demo3.js). -->
+  <div id="desktop-file" class="hidden">
+    <img src="icons/scrapbook.png" alt="">
+    <span class="label">Tech Corridor Study</span>
+  </div>
 
   <!-- ── SIDE WINDOWS (Finder left, Browser right) ── lifted from a prior demo.
        Start hidden (.win-hidden) so Demo 3's opening frame still matches Demo 2's

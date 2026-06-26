@@ -244,6 +244,50 @@ function categorize() {
   folderRow.addEventListener('click', () => selectHotelsFolder(folderRow));
 }
 
+/* Final beat: collapse the whole scrapbook unit into a single Finder-style desktop
+   icon ("Tech Corridor Study"). The viewer shrinks toward its own center + fades
+   (CSS .collapsed); the desktop icon fades/pops in to take its place.
+   Triggered by CLICKING the viewer's traffic lights (NOT Space) — Space was too easy
+   to hit mid-demo. The titlebar drag handler already ignores traffic-light clicks. */
+function minimizeToIcon() {
+  const viewer = document.getElementById('viewer');
+  const fileIcon = document.getElementById('desktop-file');
+  if (viewer.classList.contains('collapsed')) return;   // already minimized
+  hideBrowser();                              // tuck the scrapbook pane away first
+  // Show the icon immediately so it's already in place as the window shrinks ONTO it
+  // (the viewer's higher z-index keeps it above the icon until it scales away).
+  fileIcon.classList.remove('hidden');
+  viewer.classList.add('collapsed');
+}
+// Reverse of minimizeToIcon: re-open the unit from its desktop icon (in case the
+// minimize was triggered too early in the demo). The icon fades out, the viewer
+// scales back up via the same .collapsed transition.
+function restoreFromIcon() {
+  const viewer = document.getElementById('viewer');
+  const fileIcon = document.getElementById('desktop-file');
+  if (!viewer.classList.contains('collapsed')) return;   // already open
+  fileIcon.classList.add('hidden');
+  viewer.classList.remove('collapsed');      // window scales back up first…
+  // …then, once the window has finished growing, slide the scrapbook panel out.
+  viewer.addEventListener('transitionend', function onGrown(e) {
+    if (e.target !== viewer || e.propertyName !== 'transform') return;
+    viewer.removeEventListener('transitionend', onGrown);
+    showBrowser();
+  });
+}
+
+// Click any of the viewer's stoplight dots → minimize the unit to a desktop icon.
+// Listen on the whole titlebar and hit-test for a traffic-light click (the dots are
+// tiny under #stage scale; a synthetic `click` can miss them). Use mousedown so it
+// fires reliably; the drag handler already bails on traffic-light mousedowns.
+viewer.querySelector('.win-titlebar').addEventListener('mousedown', (e) => {
+  if (e.target.closest('.traffic-lights')) minimizeToIcon();
+});
+
+// Click the collapsed desktop icon → restore the unit.
+document.getElementById('desktop-file')
+  .addEventListener('click', restoreFromIcon);
+
 /* ── Stage sequencer (the demo's spine) ──
    Spacebar advances the scripted narrative one beat at a time (like a presentation
    clicker). Manual drags stay live throughout — Space only fires the SCRIPTED beats.
@@ -256,7 +300,8 @@ function categorize() {
      3  bulk-add the hotels                            — bulkAddHotels (stages[1])
      4  fade the side windows back out (sources gathered) — hideSideWindows (stages[2])
      5  categorize: hotels collect into a Hotels folder — categorize (stages[3])
-     6  (map is triggered by the chatbox, not Space)               */
+     -  (map is triggered by the chatbox, not Space)
+     -  (minimize-to-icon is triggered by clicking the viewer's traffic lights, not Space) */
 let stageIdx = 0;
 const stages = [
   revealSideWindows,                       // → reveal sources

@@ -40,6 +40,42 @@
   z-index: 10;
   overflow: visible;   /* let #filebrowser (positioned to the left) escape the clip */
   border-radius: 12px; /* corner shape for the inner content (clipped by .viewer-clip) */
+  transform-origin: center center;
+  transition: transform 0.6s cubic-bezier(0.5, 0, 0.2, 1), opacity 0.5s ease;
+}
+
+/* Final beat: the whole unit shrinks toward its own center and fades out as the
+   desktop file icon takes its place (see #desktop-file). */
+#viewer.collapsed {
+  transform: scale(0.06);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── COLLAPSED DESKTOP ICON ── Finder-style: icon over a centered label, parked at
+   the viewer's former center (1840, 740). Fades/scales in after the window shrinks. */
+#desktop-file {
+  position: absolute;
+  left: 1840px;
+  top: 740px;
+  transform: translate(-50%, -50%) scale(1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 5;
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+#desktop-file.hidden {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.6);
+  pointer-events: none;
+}
+#desktop-file img { width: 96px; height: 96px; object-fit: contain; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.45)); }
+#desktop-file .label {
+  font-size: 16px; color: #fff; font-weight: 500;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.85);
+  padding: 1px 7px; border-radius: 4px;
 }
 
 /* Inner clip layer: restores rounded-corner clipping for the viewer's own content
@@ -360,24 +396,8 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── HOTEL PANEL ── (a hotel "gathered from the web", shown when its row is clicked) */
-.hotel-panel { background: #fff; overflow-y: auto; flex-direction: column; }
-.hotel-panel .hotel-photo {
-  height: 280px; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 96px;
-}
-.hotel-panel .hotel-body { padding: 28px 40px; }
-.hotel-panel .hotel-name { font-size: 26px; font-weight: 800; color: #1a1a1a; margin-bottom: 6px; }
-.hotel-panel .hotel-loc { font-size: 14px; color: #888; margin-bottom: 14px; }
-.hotel-panel .hotel-price { font-size: 22px; font-weight: 700; color: var(--accent); margin-bottom: 18px; }
-.hotel-panel .hotel-price span { font-size: 13px; font-weight: 500; color: #999; }
-.hotel-panel .hotel-blurb { font-size: 15px; line-height: 1.7; color: #444; margin-bottom: 20px; max-width: 560px; }
-.hotel-panel .hotel-tags { display: flex; gap: 8px; }
-.hotel-panel .hotel-tags span {
-  font-size: 12px; color: #555;
-  background: #f0f0f3; border-radius: 12px; padding: 4px 12px;
-}
+/* (The old styled .hotel-panel rules were removed — hotel previews now reuse the
+   .snippet-panel structure, so they read as plain clipped text from the Time Out page.) */
 
 /* ── STAGE 5: chatbox over the Hotels folder ── (scripted, not real NLP) */
 .scrap-chat {
